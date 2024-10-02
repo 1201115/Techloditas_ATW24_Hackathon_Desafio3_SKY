@@ -1,0 +1,8 @@
+
+/frontend/memifier/.angular
+/frontend/memifier/.nx
+frontend/memifier/.editorconfig
+/frontend/memifier/.vscode
+/frontend/memifier/node_modules
+/frontend/memifier/android
+/frontend/memifier/dist
