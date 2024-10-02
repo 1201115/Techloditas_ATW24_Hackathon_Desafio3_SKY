@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -7,14 +7,29 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './video-trimmer.component.html',
   styleUrls: ['./video-trimmer.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule] // Import necessary modules
+  imports: [CommonModule, FormsModule]
 })
-export class VideoTrimmerComponent {
+export class VideoTrimmerComponent implements AfterViewInit {
   @Input() videoSrc: string | ArrayBuffer | null = null;
   @ViewChild('videoPlayer') videoPlayer!: ElementRef<HTMLVideoElement>;
   startTime: number = 0;
   endTime: number = 0;
+  videoDuration: number = 0;
   trimmedVideoSrc: string | null = null;
+
+  ngAfterViewInit(): void {
+    // Initialize the end time to the video duration once metadata is loaded
+    this.videoPlayer.nativeElement.addEventListener('loadedmetadata', () => {
+      this.videoDuration = this.videoPlayer.nativeElement.duration;
+      this.endTime = this.videoDuration;
+    });
+  }
+
+  onMetadataLoaded(event: Event): void {
+    const videoElement = this.videoPlayer.nativeElement;
+    this.videoDuration = videoElement.duration;
+    this.endTime = this.videoDuration;
+  }
 
   trimVideo(): void {
     const videoElement = this.videoPlayer.nativeElement;

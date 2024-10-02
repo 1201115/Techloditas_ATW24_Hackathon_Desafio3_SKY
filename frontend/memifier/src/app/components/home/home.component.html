@@ -1,3 +1,5 @@
 <button class="m-10 btn btn-active btn-primary">Botão Satisfatório</button>
-<app-video-upload (videoSelected)="onVideoSelected($event)"></app-video-upload>
-<app-video-trimmer *ngIf="videoSrc" [videoSrc]="videoSrc"></app-video-trimmer>
+<div>
+    <app-video-upload (videoSelected)="onVideoSelected($event)"></app-video-upload>
+    <app-video-trimmer [videoSrc]="videoSrc"></app-video-trimmer>
+</div>

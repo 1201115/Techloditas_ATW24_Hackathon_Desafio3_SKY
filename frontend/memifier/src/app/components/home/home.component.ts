@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { VideoUploadComponent } from '../video-upload/video-upload.component';
-import { VideoTrimmerComponent } from '../../video-trimmer/video-trimmer.component';
+import { VideoTrimmerComponent } from '../video-trim/video-trimmer.component';
 
 @Component({
   selector: 'home',
   templateUrl: './home.component.html',
-  styleUrl: './home.component.css',
+  styleUrls: ['./home.component.css'],
   standalone: true,
-  imports:[VideoUploadComponent, VideoTrimmerComponent]
+  imports: [VideoUploadComponent, VideoTrimmerComponent]
 })
 export class HomeComponent {
   videoSrc: string | ArrayBuffer | null = null;

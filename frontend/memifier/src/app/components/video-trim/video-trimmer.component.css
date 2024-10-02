@@ -1,0 +1,10 @@
+.container {
+    max-width: 800px;
+    margin: auto;
+  }
+  
+  .slider-container {
+    margin: 10px 0;
+    position: relative;
+    height: 50px;
+  }

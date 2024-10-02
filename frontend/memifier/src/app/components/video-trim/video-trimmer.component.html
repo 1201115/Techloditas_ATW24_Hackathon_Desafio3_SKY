@@ -1,0 +1,24 @@
+<div class="container" *ngIf="videoSrc">
+  <h1>Angular Video Trimmer</h1>
+  
+  <!-- Video Element with Controls -->
+  <video #videoPlayer id="videoPlayer" [src]="videoSrc" controls (loadedmetadata)="onMetadataLoaded($event)">
+    Your browser does not support HTML video.
+  </video>
+
+  <!-- Custom Slider for Start and End Points -->
+  <div class="slider-container">
+    <label for="startRange">Start</label>
+    <input type="range" id="startRange" [min]="0" [max]="videoDuration" step="0.01" [(ngModel)]="startTime" class="slider">
+  </div>
+  <div class="slider-container">
+    <label for="endRange">End</label>
+    <input type="range" id="endRange" [min]="0" [max]="videoDuration" step="0.01" [(ngModel)]="endTime" class="slider">
+  </div>
+
+  <!-- Trim Button -->
+  <button (click)="trimVideo()">Trim Video</button>
+
+  <!-- Trimmed Video -->
+  <video *ngIf="trimmedVideoSrc" [src]="trimmedVideoSrc" controls></video>
+</div>
