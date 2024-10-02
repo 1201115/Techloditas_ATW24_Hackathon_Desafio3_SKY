@@ -8,6 +8,10 @@ Bem-vindo ao projeto Memifier! Este guia irá ajudá-lo a configurar o ambiente 
    - Pode descarregar e instalar a versão correta no [site oficial do Node.js](https://nodejs.org/).
 2. **Instalar o Android Studio** se pretender gerar o APK.
 
+#### Links Importantes
+
+1. **Biblioteca de Componentes e Estilos em Uso:** https://daisyui.com/components/
+
 ------
 
 ### **Passos Iniciais**
@@ -23,6 +27,9 @@ Bem-vindo ao projeto Memifier! Este guia irá ajudá-lo a configurar o ambiente 
    ```bash
    npx nx run memifier:serve
    ```
+
+3. **Abrir o Browser no seguinte link para ver a aplicação:**
+   http://localhost:4200/
 
 ------
 
