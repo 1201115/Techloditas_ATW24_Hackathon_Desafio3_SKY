@@ -1,0 +1,15 @@
+<div class="video-trimmer-container">
+    <video #videoPlayer [src]="videoSrc" controls></video>
+    <div class="controls">
+        <label>
+            Start Time:
+            <input type="number" [(ngModel)]="startTime" min="0" [max]="videoPlayer.duration" step="0.1">
+        </label>
+        <label>
+            End Time:
+            <input type="number" [(ngModel)]="endTime" min="0" [max]="videoPlayer.duration" step="0.1">
+        </label>
+        <button (click)="trimVideo()">Trim Video</button>
+    </div>
+    <video *ngIf="trimmedVideoSrc" [src]="trimmedVideoSrc" controls></video>
+</div>
