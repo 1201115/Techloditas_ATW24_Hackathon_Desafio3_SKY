@@ -1,0 +1,12 @@
+<div class="flex-container">
+  <div class="metrics">
+    {{slide1}}s
+  </div>
+  <section class="range-slider">
+    <input [(ngModel)]="valueMin" [min]="min" [max]="max" [step]="step" type="range">
+    <input [(ngModel)]="valueMax" [min]="min" [max]="max" [step]="step" type="range">
+  </section>
+  <div class="metrics">
+      {{slide2}}s
+  </div>
+</div>

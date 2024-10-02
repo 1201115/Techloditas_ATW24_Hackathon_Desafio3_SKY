@@ -1,5 +1,4 @@
 <button class="m-10 btn btn-active btn-primary">Botão Satisfatório</button>
-<div>
-    <app-video-upload (videoSelected)="onVideoSelected($event)"></app-video-upload>
-    <app-video-trimmer [videoSrc]="videoSrc"></app-video-trimmer>
-</div>
+
+<input type="file" (change)="onInputChange($event)" >
+<video-trimmer *ngIf="inputBase64" [source]="inputBase64" (base64)="data($event)"></video-trimmer>

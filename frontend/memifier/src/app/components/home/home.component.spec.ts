@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HomeComponent } from './home.component';
-import { VideoUploadComponent } from '../video-upload/video-upload.component'; // Import VideoUploadComponent
+import { SliderClipComponent } from '../slider-clip/slider-clip.component'; // Import VideoUploadComponent
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
@@ -8,7 +8,7 @@ describe('HomeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [HomeComponent, VideoUploadComponent] // Add VideoUploadComponent here
+      declarations: [HomeComponent, SliderClipComponent] // Add VideoUploadComponent here
     })
     .compileComponents();
 
