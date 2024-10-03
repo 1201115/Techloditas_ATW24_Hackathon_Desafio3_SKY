@@ -1,5 +1,5 @@
 <!-- video-trimmer.component.html -->
-<div class="flex flex-col items-center p-5 space-y-5" style="overflow: hidden;">
+<div class="flex flex-col items-center p-5 space-y-5" style="overflow: hidden">
   <!-- Upload Video Button -->
   <div class="flex flex-col items-center space-y-4">
     <label for="videoUpload" class="btn btn-primary"> Upload Video </label>
@@ -24,20 +24,6 @@
     >
       Your browser does not support the video tag.
     </video>
-
-    <!-- Custom Play/Pause Controls -->
-    <div
-      class="absolute bottom-5 left-5 flex items-center space-x-4"
-      *ngIf="isVideoLoaded"
-    >
-      <button class="btn btn-secondary" (click)="togglePlayPause()">
-        {{ isPlaying ? "Pause" : "Play" }}
-      </button>
-      <span
-        >{{ currentTime | number : "1.2-2" }} /
-        {{ videoDuration | number : "1.2-2" }}s</span
-      >
-    </div>
   </div>
 
   <!-- Custom timeline with draggable handles for trimStart and trimEnd -->
@@ -69,12 +55,24 @@
     </div>
   </div>
 
-  <!-- Save Button -->
-  <button
-    *ngIf="isVideoLoaded"
-    class="btn btn-primary mt-4"
-    (click)="saveTrimmedClip()"
-  >
-    Save Trimmed Clip
-  </button>
+  <div class="flex flex-row justify-center gap-10">
+    <!-- Custom Play/Pause Controls -->
+    <div class="flex items-center space-x-4" *ngIf="isVideoLoaded">
+      <button class="btn btn-secondary" (click)="togglePlayPause()">
+        {{ isPlaying ? "Pause" : "Play" }}
+      </button>
+      <span
+        >{{ currentTime | number : "1.2-2" }} /
+        {{ videoDuration | number : "1.2-2" }}s</span
+      >
+    </div>
+    <!-- Save Button -->
+    <button
+      *ngIf="isVideoLoaded"
+      class="btn btn-primary"
+      (click)="saveTrimmedClip()"
+    >
+      Trim Video
+    </button>
+  </div>
 </div>
