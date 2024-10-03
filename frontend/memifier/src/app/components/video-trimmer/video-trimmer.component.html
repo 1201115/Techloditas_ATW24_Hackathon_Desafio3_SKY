@@ -1,0 +1,95 @@
+<!-- video-trimmer.component.html -->
+<div class="flex flex-col items-center p-5 space-y-5">
+  <!-- Upload Video Button -->
+  <div class="flex flex-col items-center space-y-4">
+    <label for="videoUpload" class="btn btn-primary">
+      Upload Video
+    </label>
+    <input
+      id="videoUpload"
+      type="file"
+      accept="video/*"
+      class="hidden"
+      (change)="onFileSelected($event)"
+    />
+  </div>
+
+  <!-- Video player (initially hidden until a video is loaded) -->
+  <div class="relative w-full max-w-4xl">
+    <video
+      #videoPlayer
+      id="video"
+      class="w-full border rounded-md shadow-lg"
+      [controls]="false"
+      (timeupdate)="onVideoTimeUpdate($event)"
+      [hidden]="!isVideoLoaded"
+    >
+      Your browser does not support the video tag.
+    </video>
+
+    <!-- Custom Play/Pause Controls -->
+    <div class="absolute bottom-5 left-5 flex items-center space-x-4" *ngIf="isVideoLoaded">
+      <button
+        class="btn btn-secondary"
+        (click)="togglePlayPause()"
+      >
+        {{ isPlaying ? 'Pause' : 'Play' }}
+      </button>
+
+      <!-- Custom Timeline for current playback -->
+      <input
+        type="range"
+        class="w-64 accent-blue-500"
+        [min]="0"
+        [max]="videoDuration"
+        step="0.01"
+        [(ngModel)]="currentTime"
+        (input)="onTimelineChange()"
+      />
+      <span>{{ currentTime | number:'1.2-2' }} / {{ videoDuration | number:'1.2-2' }}s</span>
+    </div>
+  </div>
+
+  <!-- Trim controls (same as before) -->
+  <div
+    *ngIf="isVideoLoaded"
+    class="flex justify-between w-full max-w-4xl space-x-4"
+  >
+    <!-- Trim Start -->
+    <div class="flex flex-col items-center space-y-2">
+      <label class="font-semibold">Start Time: {{ trimStart | number:'1.2-2' }}s</label>
+      <input
+        type="range"
+        class="accent-green-500 w-full"
+        [(ngModel)]="trimStart"
+        [min]="0"
+        [max]="trimEnd"
+        step="0.01"
+        (input)="onTrimChange()"
+      />
+    </div>
+
+    <!-- Trim End -->
+    <div class="flex flex-col items-center space-y-2">
+      <label class="font-semibold">End Time: {{ trimEnd | number:'1.2-2' }}s</label>
+      <input
+        type="range"
+        class="accent-red-500 w-full"
+        [(ngModel)]="trimEnd"
+        [min]="trimStart"
+        [max]="videoDuration"
+        step="0.01"
+        (input)="onTrimChange()"
+      />
+    </div>
+  </div>
+
+  <!-- Save Button -->
+  <button
+    *ngIf="isVideoLoaded"
+    class="btn btn-primary mt-4"
+    (click)="saveTrimmedClip()"
+  >
+    Save Trimmed Clip
+  </button>
+</div>
