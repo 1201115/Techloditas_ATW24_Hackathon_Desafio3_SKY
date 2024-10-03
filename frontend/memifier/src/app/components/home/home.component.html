@@ -35,8 +35,7 @@
   >
 
     <div *ngIf="responseData">
-      <video *ngIf="responseType === 'video'" [src]="responseData" controls></video>
-      <img *ngIf="responseType === 'image'" [src]="responseData" alt="Captured Frame">
+      <text-overlay [mediaType]="responseType" [mediaSrc]="responseData"></text-overlay>
     </div>
     <!-- Edit Component -->
     <app-edit></app-edit>
