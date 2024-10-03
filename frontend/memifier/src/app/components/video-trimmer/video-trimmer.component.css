@@ -12,7 +12,7 @@
 .timeline-range {
   position: absolute;
   height: 100%;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   z-index: 1;
 }
 
@@ -50,10 +50,25 @@
 
 .needle {
   position: absolute;
-  top: -10px;
-  width: 2px;
-  height: 30px;
+  top: -15px;
+  width: 4px;
+  height: 40px;
   background-color: red;
   z-index: 3;
   cursor: pointer;
+}
+
+/* Effect for needle and trims when dragging */
+.dragging {
+  transform: scale(1.2); /* Make the element slightly larger */
+  background-color: #ff9800; /* Change color to highlight */
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.4); /* Add shadow for emphasis */
+  cursor: grabbing;
+}
+
+/* Smooth transition for the dragging effect */
+.needle,
+.handle {
+  transition: transform 0.2s ease, background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
