@@ -6,9 +6,11 @@ from werkzeug.utils import secure_filename
 from flask_cors import CORS
 from PIL import Image
 import helpers as h
+from moviepy.config import change_settings
 
 app = Flask(__name__)
 
+change_settings({"IMAGEMAGICK_BINARY": "C:\\Program Files\\ImageMagick-7.1.1-Q16-HDRI\\magick.exe"})
 # Set the maximum file size to 500MB
 app.config["MAX_CONTENT_LENGTH"] = 500 * 1024 * 1024  # 500 MB limit
 
@@ -50,25 +52,17 @@ def trim_to_video():
         return {"error": f"Failed to process video: {str(e)}"}, 500
 
     if trim_start < 0 or trim_end > clip.duration or trim_start >= trim_end:
-        return {"error": f"Invalid trim times{trim_start} # {trim_end}"}, 400
+        return {"error": "Invalid trim times"}, 400
 
     # Trim the video
     trimmed_clip = clip.subclip(trim_start, trim_end)
 
     trimmed_video_filename = filename.rsplit(".", 1)[0] + "_trimmed.mp4"
     trimmed_video_path = os.path.join(app.config["UPLOAD_FOLDER"], trimmed_video_filename)
-    text_overlays = request.form.get("texts")
-    if True:
-        try:
-            # texts = json.loads(text_overlays)
-            final_clip = h.add_text_overlays(trimmed_clip, [{"xd": "xd"}])
-        except (json.JSONDecodeError, ValueError, TypeError) as e:
-            return {"error": f"Failed to process text overlays: {str(e)}"}, 400
-    else:
-        final_clip = trimmed_clip
+
     try:
         # Write the trimmed video to a file
-        final_clip.write_videofile(trimmed_video_path, codec="libx264")
+        trimmed_clip.write_videofile(trimmed_video_path, codec="libx264")
     except Exception as e:
         return {"error": f"Failed to create trimmed video: {str(e)}"}, 500
 
