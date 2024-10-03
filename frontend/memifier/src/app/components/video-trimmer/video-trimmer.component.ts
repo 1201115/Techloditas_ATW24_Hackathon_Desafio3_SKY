@@ -1,5 +1,11 @@
 // video-trimmer.component.ts
-import { Component, ViewChild, ElementRef, HostListener, OnInit } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  ElementRef,
+  HostListener,
+  OnInit,
+} from '@angular/core';
 
 @Component({
   selector: 'video-trimmer',
@@ -7,8 +13,10 @@ import { Component, ViewChild, ElementRef, HostListener, OnInit } from '@angular
   styleUrls: ['./video-trimmer.component.css'],
 })
 export class VideoTrimmerComponent implements OnInit {
-  @ViewChild('videoPlayer', { static: false }) videoPlayer!: ElementRef<HTMLVideoElement>;
-  @ViewChild('timeline', { static: false }) timeline!: ElementRef<HTMLDivElement>; // Added reference to timeline
+  @ViewChild('videoPlayer', { static: false })
+  videoPlayer!: ElementRef<HTMLVideoElement>;
+  @ViewChild('timeline', { static: false })
+  timeline!: ElementRef<HTMLDivElement>; // Added reference to timeline
 
   videoDuration = 0;
   currentTime = 0;
@@ -54,7 +62,10 @@ export class VideoTrimmerComponent implements OnInit {
 
     if (video.paused || video.ended) {
       // Set video to start from trimStart if it is outside the range
-      if (video.currentTime < this.trimStart || video.currentTime >= this.trimEnd) {
+      if (
+        video.currentTime < this.trimStart ||
+        video.currentTime >= this.trimEnd
+      ) {
         video.currentTime = this.trimStart;
       }
       video.play();
@@ -65,33 +76,59 @@ export class VideoTrimmerComponent implements OnInit {
     }
   }
 
-  onDragStart(event: MouseEvent, handle: 'start' | 'end'): void {
+  onDragStart(event: MouseEvent | TouchEvent, handle: 'start' | 'end'): void {
+    event.preventDefault(); // Prevent default touch behavior (like scrolling)
+
+
+    console.log((event as MouseEvent))
+
+    // Check if it's a touch event and get the corresponding clientX
+    const clientX =
+      event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
     this.draggingHandle = handle;
+
+    // Call the drag function to immediately update the position on touch
+    this.updateDragPosition(clientX);
   }
 
   @HostListener('window:mousemove', ['$event'])
-  onDrag(event: MouseEvent): void {
+  @HostListener('window:touchmove', ['$event'])
+  onDrag(event: MouseEvent | TouchEvent): void {
     if (!this.draggingHandle) return;
 
+    // Check if it's a touch event and get the corresponding clientX
+    const clientX =
+      event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+
+    // Update the position based on drag or touch movement
+    this.updateDragPosition(clientX);
+  }
+
+  updateDragPosition(clientX: number): void {
     const timelineRect = this.timeline.nativeElement.getBoundingClientRect();
-    const offsetX = event.clientX - timelineRect.left;
+    const offsetX = clientX - timelineRect.left;
     const percentage = Math.max(0, Math.min(1, offsetX / timelineRect.width)); // Ensure percentage is between 0 and 1
     const newTime = percentage * this.videoDuration; // Convert percentage to actual video time
 
     if (this.draggingHandle === 'start') {
       this.trimStart = Math.min(newTime, this.trimEnd - 0.1); // Prevent trimStart from exceeding trimEnd
+      this.videoPlayer.nativeElement.currentTime = this.trimStart; // Update the video preview
     } else if (this.draggingHandle === 'end') {
       this.trimEnd = Math.max(newTime, this.trimStart + 0.1); // Prevent trimEnd from going before trimStart
+      this.videoPlayer.nativeElement.currentTime = this.trimEnd; // Update the video preview
     }
   }
 
   @HostListener('window:mouseup')
+  @HostListener('window:touchend')
   onDragEnd(): void {
-    this.draggingHandle = null; // Reset dragging handle when the mouse is released
+    this.draggingHandle = null; // Reset dragging handle when the touch or mouse is released
   }
 
   saveTrimmedClip(): void {
-    console.log(`Trimmed clip: Start - ${this.trimStart}s, End - ${this.trimEnd}s`);
+    console.log(
+      `Trimmed clip: Start - ${this.trimStart}s, End - ${this.trimEnd}s`
+    );
     // Logic to actually trim and save the video clip can go here
   }
 }
