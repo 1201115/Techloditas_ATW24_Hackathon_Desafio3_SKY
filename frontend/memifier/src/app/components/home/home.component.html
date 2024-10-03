@@ -1,1 +1,57 @@
-<video-trimmer></video-trimmer>
+<div class="p-10 flex flex-col" style="height: 100vh">
+  <!-- Stepper -->
+  <ul class="steps">
+    <li class="step" [ngClass]="{ 'step-primary': currentStep === 1 }">
+      Upload
+    </li>
+    <li class="step" [ngClass]="{ 'step-primary': currentStep === 2 }">Edit</li>
+    <li class="step" [ngClass]="{ 'step-primary': currentStep === 3 }">
+      Export
+    </li>
+  </ul>
+
+  <!-- Step content -->
+  <div
+    *ngIf="currentStep === 1"
+    class="flex flex-col justify-between"
+    style="height: 80vh"
+  >
+    <!-- Video Trimmer for Upload -->
+    <video-trimmer></video-trimmer>
+    <div class="w-100 flex justify-end">
+      <button class="btn btn-primary w-1/3" (click)="nextStep()">
+        Next: Edit
+      </button>
+    </div>
+  </div>
+
+  <div
+    *ngIf="currentStep === 2"
+    class="flex flex-col justify-between"
+    style="height: 80vh"
+  >
+    <!-- Edit Component -->
+    <app-edit></app-edit>
+
+    <div class="w-100 flex justify-between">
+      <button class="btn btn-secondary" (click)="previousStep()">
+        Back: Upload
+      </button>
+      <button class="btn btn-primary" (click)="nextStep()">Next: Export</button>
+    </div>
+  </div>
+
+  <div
+    *ngIf="currentStep === 3"
+    class="flex flex-col justify-between"
+    style="height: 80vh"
+  >
+    <!-- Export Component -->
+    <app-export></app-export>
+    <div class="w-100 flex justify-between">
+      <button class="btn btn-secondary" (click)="previousStep()">
+        Back: Edit
+      </button>
+    </div>
+  </div>
+</div>
