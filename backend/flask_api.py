@@ -46,27 +46,19 @@ def trim_to_gif():
         return {'error': 'Invalid trim times'}, 400
 
     # Resize the video to 50% of its original size
-    resized_clip = clip.subclip(trim_start, trim_end).resize(0.5)
+    resized_clip = clip.subclip(trim_start, trim_end).resize(0.1)
 
     gif_filename = filename.rsplit('.', 1)[0] + '.gif'
     gif_path = os.path.join(app.config['UPLOAD_FOLDER'], gif_filename)
 
+    # get video fps
+    clip_fps = clip.fps / 2
+
     try:
         # Write the resized GIF to the file system
-        resized_clip.write_gif(gif_path, fps=24)
+        resized_clip.write_gif(gif_path, fps=clip_fps)
     except Exception as e:
         return {'error': f'Failed to create GIF: {str(e)}'}, 500
-
-    @after_this_request
-    def cleanup(response):
-        try:
-            if os.path.exists(gif_path):
-                os.remove(gif_path)
-            if os.path.exists(video_path):
-                os.remove(video_path)
-        except Exception as e:
-            print(f'Error deleting files: {str(e)}')
-        return response
 
     # Return the GIF as a response
     return send_file(gif_path, mimetype='image/gif', as_attachment=True, download_name=gif_filename)
@@ -106,17 +98,6 @@ def frame_at_time():
         image.save(frame_path)
     except Exception as e:
         return {'error': f'Failed to extract frame: {str(e)}'}, 500
-
-    @after_this_request
-    def cleanup(response):
-        try:
-            if os.path.exists(frame_path):
-                os.remove(frame_path)
-            if os.path.exists(video_path):
-                os.remove(video_path)
-        except Exception as e:
-            print(f'Error deleting files: {str(e)}')
-        return response
 
     return send_file(frame_path, mimetype='image/png', as_attachment=True, download_name=frame_filename)
 
