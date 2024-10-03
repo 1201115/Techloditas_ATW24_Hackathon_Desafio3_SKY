@@ -24,7 +24,7 @@ export class VideoTrimmerComponent implements OnInit {
   trimEnd = 0;
   isVideoLoaded = false;
   isPlaying = false;
-  draggingHandle: 'start' | 'end' | null = null; // To track which handle is being dragged
+  draggingHandle: 'start' | 'end' | 'needle' | null = null; // To track which handle is being dragged
 
   ngOnInit(): void {}
 
@@ -46,10 +46,14 @@ export class VideoTrimmerComponent implements OnInit {
   onVideoTimeUpdate(event: any): void {
     this.currentTime = this.videoPlayer.nativeElement.currentTime;
 
-    // Pause video automatically when it reaches trimEnd
+    // Force stop if the video passes the trimEnd
     if (this.currentTime >= this.trimEnd) {
       this.videoPlayer.nativeElement.pause();
       this.isPlaying = false;
+
+      // Set the video time exactly to trimEnd to avoid overshooting
+      this.videoPlayer.nativeElement.currentTime = this.trimEnd;
+      this.currentTime = this.trimEnd;
     }
 
     if (this.videoPlayer.nativeElement.ended) {
@@ -57,15 +61,13 @@ export class VideoTrimmerComponent implements OnInit {
     }
   }
 
+
   togglePlayPause(): void {
     const video = this.videoPlayer.nativeElement;
 
     if (video.paused || video.ended) {
       // Set video to start from trimStart if it is outside the range
-      if (
-        video.currentTime < this.trimStart ||
-        video.currentTime >= this.trimEnd
-      ) {
+      if (video.currentTime < this.trimStart || video.currentTime >= this.trimEnd) {
         video.currentTime = this.trimStart;
       }
       video.play();
@@ -76,11 +78,9 @@ export class VideoTrimmerComponent implements OnInit {
     }
   }
 
+
   onDragStart(event: MouseEvent | TouchEvent, handle: 'start' | 'end'): void {
     event.preventDefault(); // Prevent default touch behavior (like scrolling)
-
-
-    console.log((event as MouseEvent))
 
     // Check if it's a touch event and get the corresponding clientX
     const clientX =
@@ -96,13 +96,27 @@ export class VideoTrimmerComponent implements OnInit {
   onDrag(event: MouseEvent | TouchEvent): void {
     if (!this.draggingHandle) return;
 
-    // Check if it's a touch event and get the corresponding clientX
-    const clientX =
-      event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+    const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
 
-    // Update the position based on drag or touch movement
-    this.updateDragPosition(clientX);
+    // Update only the respective element based on what's being dragged
+    if (this.draggingHandle === 'needle') {
+      this.onNeedleDrag(clientX); // Update needle and video time for preview
+    } else {
+      this.updateDragPosition(clientX); // Update trim handles without moving the needle
+    }
   }
+
+  onNeedleDrag(clientX: number): void {
+    const timelineRect = this.timeline.nativeElement.getBoundingClientRect();
+    const offsetX = clientX - timelineRect.left;
+    const percentage = Math.max(0, Math.min(1, offsetX / timelineRect.width));
+    const newTime = percentage * this.videoDuration;
+
+    // Move the needle and update the video’s currentTime to preview the frame
+    this.currentTime = newTime;
+    this.videoPlayer.nativeElement.currentTime = newTime;
+  }
+
 
   updateDragPosition(clientX: number): void {
     const timelineRect = this.timeline.nativeElement.getBoundingClientRect();
@@ -130,5 +144,16 @@ export class VideoTrimmerComponent implements OnInit {
       `Trimmed clip: Start - ${this.trimStart}s, End - ${this.trimEnd}s`
     );
     // Logic to actually trim and save the video clip can go here
+  }
+
+  onNeedleDragStart(event: MouseEvent | TouchEvent): void {
+    event.preventDefault(); // Prevent default touch behavior
+
+    // Check if it's a touch event and get the corresponding clientX
+    const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+
+    // Start dragging the needle
+    this.onNeedleDrag(clientX);
+    this.draggingHandle = 'needle';
   }
 }

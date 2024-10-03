@@ -53,6 +53,15 @@
     >
       <span class="time-tooltip">{{ trimEnd | number : "1.2-2" }}</span>
     </div>
+
+    <!-- Needle that shows the current time in the timeline -->
+    <div
+      class="needle"
+      [style.left.%]="(currentTime / videoDuration) * 100"
+      (mousedown)="onNeedleDragStart($event)"
+      (touchstart)="onNeedleDragStart($event)"
+      *ngIf="isVideoLoaded"
+    ></div>
   </div>
 
   <div class="flex flex-row justify-center gap-10">
