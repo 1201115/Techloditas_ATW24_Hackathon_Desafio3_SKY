@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class VideoTrimmerService {
-  private readonly apiUrl = 'https://hackathon.morarbem.pt'; // Your Python API URL
+  private readonly apiUrl = 'http://127.0.0.1:5000'; // Your Python API URL
 
   constructor(private readonly http: HttpClient) {}
 
@@ -21,7 +21,7 @@ export class VideoTrimmerService {
     formData.append('trimStart', trimStart.toString()); // Append trim start time
     formData.append('trimEnd', trimEnd.toString()); // Append trim end time
 
-    return this.http.post(`${this.apiUrl}/trim-to-gif`, formData, { responseType: 'blob' });
+    return this.http.post(`${this.apiUrl}/trim-to-video`, formData, { responseType: 'blob' });
   }
 
   // Request a frame at a specific timestamp

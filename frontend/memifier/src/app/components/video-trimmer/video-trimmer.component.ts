@@ -31,6 +31,7 @@ export class VideoTrimmerComponent implements OnInit {
   isLoading = false; // Loading indicator
   requestedTimestamp = 5; // Example timestamp
   frameUrl: string | null = null; // To store the frame image URL
+  videoUrl: string | null = null; // Store the URL of the trimmed video
 
   constructor(private readonly videoTrimmerService: VideoTrimmerService) {}
 
@@ -79,16 +80,17 @@ export class VideoTrimmerComponent implements OnInit {
     const video = this.videoPlayer.nativeElement;
 
     if (video.paused || video.ended) {
-      console.log("Current time: ", video.currentTime + " Trim end: ", this.trimEnd);
+      console.log(
+        'Current time: ',
+        video.currentTime + ' Trim end: ',
+        this.trimEnd
+      );
       // Set video to start from trimStart if it is outside the range
       // round currentTime to centiseconds to avoid floating point errors
       const currentTime = Math.round(video.currentTime * 100) / 100;
       const trimEnd = Math.round(this.trimEnd * 100) / 100;
       const trimStart = Math.round(this.trimStart * 100) / 100;
-      if (
-        currentTime >= trimEnd ||
-        currentTime < trimStart
-      ) {
+      if (currentTime >= trimEnd || currentTime < trimStart) {
         video.currentTime = this.trimStart;
       }
       video.play();
@@ -164,7 +166,6 @@ export class VideoTrimmerComponent implements OnInit {
     }
   }
 
-
   @HostListener('window:mouseup')
   @HostListener('window:touchend')
   onDragEnd(): void {
@@ -207,7 +208,7 @@ export class VideoTrimmerComponent implements OnInit {
         .trimVideo(this.videoFile, this.trimStart, this.trimEnd)
         .subscribe(
           (blob) => {
-            this.gifUrl = URL.createObjectURL(blob); // Store the GIF URL
+            this.videoUrl = URL.createObjectURL(blob); // Store the trimmed video URL
             this.isLoading = false; // Remove loading indicator
           },
           (error) => {
