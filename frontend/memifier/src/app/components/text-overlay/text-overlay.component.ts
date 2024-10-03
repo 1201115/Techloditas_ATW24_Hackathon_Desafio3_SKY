@@ -1,4 +1,12 @@
-import { Component, Input, OnInit, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  HostListener,
+} from '@angular/core';
 import { VideoExportService } from '../../services/video-export.service'; // Import the new service
 @Component({
   selector: 'text-overlay',
@@ -60,8 +68,12 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
     if (this.isDragging) {
-      this.overlayText.nativeElement.style.left = `${event.clientX - this.startX}px`;
-      this.overlayText.nativeElement.style.top = `${event.clientY - this.startY}px`;
+      this.overlayText.nativeElement.style.left = `${
+        event.clientX - this.startX
+      }px`;
+      this.overlayText.nativeElement.style.top = `${
+        event.clientY - this.startY
+      }px`;
     }
   }
 
@@ -78,40 +90,30 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
         text: this.text,
         color: 'white',
         x: this.overlayText ? this.overlayText.nativeElement.offsetLeft : 0,
-        y: this.overlayText ? this.overlayText.nativeElement.offsetTop : 0
-      }
+        y: this.overlayText ? this.overlayText.nativeElement.offsetTop : 0,
+      },
     ];
-  
+
     fetch(videoUrl)
-      .then(response => response.blob())
-      .then(blob => {
+      .then((response) => response.blob())
+      .then((blob) => {
         const file = new File([blob], 'video.mp4', { type: 'video/mp4' });
-  
-        const formData = new FormData();
-        formData.append('video', file);
-        formData.append('exportType', exportType);
-        formData.append('texts', JSON.stringify(texts));
-  
-        fetch('/export-video', {
-          method: 'POST',
-          body: formData,
-        })
-        .then(response => response.blob())
-        .then(blob => {
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.style.display = 'none';
-          a.href = url;
-          a.download = exportType === 'GIF' ? 'exported_video.gif' : 'exported_video.mp4';
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(url);
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
+
+        this.videoExportService.exportVideo(file, exportType, texts).subscribe(
+          (blob) => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'exported-video.mp4';
+            a.click();
+            URL.revokeObjectURL(url);
+          },
+          (error) => {
+            console.error('Error exporting video:', error);
+          }
+        );
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error fetching video blob:', error);
       });
   }

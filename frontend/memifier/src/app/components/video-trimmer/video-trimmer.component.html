@@ -11,65 +11,70 @@
     />
   </div>
 
-  <!-- Video player (initially hidden until a video is loaded) -->
-  <div class="relative w-full max-w-4xl">
-    <video
-      #videoPlayer
-      id="video"
-      class="w-full border rounded-md shadow-lg"
-      [controls]="false"
-      (timeupdate)="onVideoTimeUpdate($event)"
-      [hidden]="!isVideoLoaded"
-    >
-      Your browser does not support the video tag.
-    </video>
-  </div>
-
-  <!-- Custom timeline with draggable handles for trimStart and trimEnd -->
-  <div
-    #timeline
-    class="timeline-container w-full max-w-4xl"
-    *ngIf="isVideoLoaded"
-  >
-    <div
-      class="timeline-range"
-      [style.left.%]="(trimStart / videoDuration) * 100"
-      [style.width.%]="((trimEnd - trimStart) / videoDuration) * 100"
-    ></div>
-
-    <!-- Start handle -->
-    <div
-      class="handle start"
-      [style.left.%]="(trimStart / videoDuration) * 100"
-      (mousedown)="onDragStart($event, 'start')"
-      (touchstart)="onDragStart($event, 'start')"
-    >
-      <span class="time-tooltip">{{ trimStart | number : "1.2-2" }}</span>
+  <div class="flex flex-col gap-2">
+    <!-- Video player (initially hidden until a video is loaded) -->
+    <div class="relative w-full max-w-4xl">
+      <video
+        #videoPlayer
+        id="video"
+        class="w-full border rounded-md shadow-lg"
+        [controls]="false"
+        (timeupdate)="onVideoTimeUpdate($event)"
+        [hidden]="!isVideoLoaded"
+      >
+        Your browser does not support the video tag.
+      </video>
     </div>
 
-    <!-- End handle -->
+    <!-- Custom timeline with draggable handles for trimStart and trimEnd -->
     <div
-      class="handle end"
-      [style.left.%]="(trimEnd / videoDuration) * 100"
-      (mousedown)="onDragStart($event, 'end')"
-      (touchstart)="onDragStart($event, 'end')"
-    >
-      <span class="time-tooltip">{{ trimEnd | number : "1.2-2" }}</span>
-    </div>
-
-    <!-- Needle that shows the current time in the timeline -->
-    <div
-      class="needle"
-      [style.left.%]="(currentTime / videoDuration) * 100"
-      (mousedown)="onNeedleDragStart($event)"
-      (touchstart)="onNeedleDragStart($event)"
+      #timeline
+      class="timeline-container w-full max-w-4xl"
       *ngIf="isVideoLoaded"
-    ></div>
+    >
+      <div
+        class="timeline-range"
+        [style.left.%]="(trimStart / videoDuration) * 100"
+        [style.width.%]="((trimEnd - trimStart) / videoDuration) * 100"
+      ></div>
+
+      <!-- Start handle -->
+      <div
+        class="handle start"
+        [style.left.%]="(trimStart / videoDuration) * 100"
+        (mousedown)="onDragStart($event, 'start')"
+        (touchstart)="onDragStart($event, 'start')"
+      >
+        <span class="time-tooltip">{{ trimStart | number : "1.2-2" }}</span>
+      </div>
+
+      <!-- End handle -->
+      <div
+        class="handle end"
+        [style.left.%]="(trimEnd / videoDuration) * 100"
+        (mousedown)="onDragStart($event, 'end')"
+        (touchstart)="onDragStart($event, 'end')"
+      >
+        <span class="time-tooltip">{{ trimEnd | number : "1.2-2" }}</span>
+      </div>
+
+      <!-- Needle that shows the current time in the timeline -->
+      <div
+        class="needle"
+        [style.left.%]="(currentTime / videoDuration) * 100"
+        (mousedown)="onNeedleDragStart($event)"
+        (touchstart)="onNeedleDragStart($event)"
+        *ngIf="isVideoLoaded"
+      ></div>
+    </div>
   </div>
 
-  <div class="flex flex-row justify-start gap-10">
+  <div class="flex flex-col justify-start gap-5">
     <!-- Custom Play/Pause Controls -->
-    <div class="flex items-start space-x-4" *ngIf="isVideoLoaded">
+    <div
+      class="flex flex-row justify-center items-center gap-5"
+      *ngIf="isVideoLoaded"
+    >
       <button class="btn btn-secondary" (click)="togglePlayPause()">
         {{ isPlaying ? "Pause" : "Play" }}
       </button>
@@ -79,7 +84,7 @@
       >
     </div>
     <!-- Save Button -->
-    <div class="flex flex-col gap-5">
+    <div class="flex flex-row gap-5">
       <button
         *ngIf="isVideoLoaded"
         class="btn btn-primary"

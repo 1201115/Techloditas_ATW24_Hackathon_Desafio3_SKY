@@ -21,24 +21,19 @@
       (videoTrimmed)="onVideoTrimmed($event)"
       (frameCaptured)="onFrameCaptured($event)"
     ></video-trimmer>
-    <div class="w-100 flex justify-end">
-      <button class="btn btn-primary w-1/3" (click)="nextStep()">
-        Next: Edit
-      </button>
-    </div>
   </div>
 
   <div
     *ngIf="currentStep === 2"
-    class="flex flex-col justify-between"
+    class="flex flex-col justify-between pt-10"
     style="height: 80vh"
   >
-
-    <div *ngIf="responseData">
-      <text-overlay [mediaType]="responseType" [mediaSrc]="responseData"></text-overlay>
-    </div>
     <!-- Edit Component -->
-    <app-edit></app-edit>
+    <text-overlay
+      *ngIf="responseData"
+      [mediaType]="responseType"
+      [mediaSrc]="responseData"
+    ></text-overlay>
 
     <div class="w-100 flex justify-between">
       <button class="btn btn-secondary" (click)="previousStep()">
