@@ -7,6 +7,9 @@ from PIL import Image
 
 app = Flask(__name__)
 
+# Set the maximum file size to 500MB
+app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500 MB limit
+
 # Enable CORS for all routes
 CORS(app)
 
@@ -56,7 +59,7 @@ def trim_to_gif():
 
     try:
         # Write the resized GIF to the file system
-        resized_clip.write_gif(gif_path, fps=clip_fps)
+        resized_clip.write_gif(gif_path, fps=clip_fps, progress_bar=False)
     except Exception as e:
         return {'error': f'Failed to create GIF: {str(e)}'}, 500
 
@@ -102,4 +105,4 @@ def frame_at_time():
     return send_file(frame_path, mimetype='image/png', as_attachment=True, download_name=frame_filename)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', debug=True, threaded=True)

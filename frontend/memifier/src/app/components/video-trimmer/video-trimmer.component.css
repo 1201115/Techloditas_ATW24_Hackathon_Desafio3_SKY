@@ -19,9 +19,9 @@
 .handle {
   position: absolute;
   top: -5px;
-  width: 15px;
-  height: 20px;
-  background-color: #000;
+  width: 4px;
+  height: 30px;
+  background-color: #7480ff;
   border-radius: 2px;
   cursor: pointer;
   z-index: 2;

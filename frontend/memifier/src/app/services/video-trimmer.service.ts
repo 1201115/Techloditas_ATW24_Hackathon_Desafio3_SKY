@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpEventType, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class VideoTrimmerService {
-  private apiUrl = 'https://hackathon.morarbem.pt'; // Your Python API URL
+  private readonly apiUrl = 'https://hackathon.morarbem.pt'; // Your Python API URL
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   // Function to send the video and trim times to the API
   trimVideo(

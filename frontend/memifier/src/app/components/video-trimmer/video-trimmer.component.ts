@@ -32,9 +32,11 @@ export class VideoTrimmerComponent implements OnInit {
   requestedTimestamp = 5; // Example timestamp
   frameUrl: string | null = null; // To store the frame image URL
 
-  constructor(private videoTrimmerService: VideoTrimmerService) {}
+  constructor(private readonly videoTrimmerService: VideoTrimmerService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    //
+  }
 
   onFileSelected(event: any): void {
     const file = event.target.files[0];
@@ -48,6 +50,9 @@ export class VideoTrimmerComponent implements OnInit {
       this.videoPlayer.nativeElement.onloadedmetadata = () => {
         this.videoDuration = this.videoPlayer.nativeElement.duration;
         this.trimEnd = this.videoDuration; // Set trim end to the full duration initially
+
+        // place the needle at the middle of the video
+        this.videoPlayer.nativeElement.currentTime = this.videoDuration / 2;
       };
     }
   }
@@ -74,10 +79,15 @@ export class VideoTrimmerComponent implements OnInit {
     const video = this.videoPlayer.nativeElement;
 
     if (video.paused || video.ended) {
+      console.log("Current time: ", video.currentTime + " Trim end: ", this.trimEnd);
       // Set video to start from trimStart if it is outside the range
+      // round currentTime to centiseconds to avoid floating point errors
+      const currentTime = Math.round(video.currentTime * 100) / 100;
+      const trimEnd = Math.round(this.trimEnd * 100) / 100;
+      const trimStart = Math.round(this.trimStart * 100) / 100;
       if (
-        video.currentTime < this.trimStart ||
-        video.currentTime >= this.trimEnd
+        currentTime >= trimEnd ||
+        currentTime < trimStart
       ) {
         video.currentTime = this.trimStart;
       }
@@ -139,12 +149,21 @@ export class VideoTrimmerComponent implements OnInit {
 
     if (this.draggingHandle === 'start') {
       this.trimStart = Math.min(newTime, this.trimEnd - 0.1); // Prevent trimStart from exceeding trimEnd
-      //this.videoPlayer.nativeElement.currentTime = this.trimStart; // Update the video preview
+
+      // Limit the clip duration to a maximum of 10 seconds
+      if (this.trimEnd - this.trimStart > 10) {
+        this.trimEnd = this.trimStart + 10;
+      }
     } else if (this.draggingHandle === 'end') {
       this.trimEnd = Math.max(newTime, this.trimStart + 0.1); // Prevent trimEnd from going before trimStart
-      //this.videoPlayer.nativeElement.currentTime = this.trimEnd; // Update the video preview
+
+      // Limit the clip duration to a maximum of 10 seconds
+      if (this.trimEnd - this.trimStart > 10) {
+        this.trimStart = this.trimEnd - 10;
+      }
     }
   }
+
 
   @HostListener('window:mouseup')
   @HostListener('window:touchend')
