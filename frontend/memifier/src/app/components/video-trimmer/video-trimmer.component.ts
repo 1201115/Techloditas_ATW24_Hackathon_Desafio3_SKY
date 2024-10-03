@@ -5,6 +5,8 @@ import {
   ElementRef,
   HostListener,
   OnInit,
+  Output,
+  EventEmitter,
 } from '@angular/core';
 import { VideoTrimmerService } from '../../services/video-trimmer.service';
 
@@ -18,6 +20,9 @@ export class VideoTrimmerComponent implements OnInit {
   videoPlayer!: ElementRef<HTMLVideoElement>;
   @ViewChild('timeline', { static: false })
   timeline!: ElementRef<HTMLDivElement>; // Added reference to timeline
+
+  @Output() videoTrimmed = new EventEmitter<string>();
+  @Output() frameCaptured = new EventEmitter<string>();
 
   videoDuration = 0;
   currentTime = 0;
@@ -210,6 +215,7 @@ export class VideoTrimmerComponent implements OnInit {
           (blob) => {
             this.videoUrl = URL.createObjectURL(blob); // Store the trimmed video URL
             this.isLoading = false; // Remove loading indicator
+            this.videoTrimmed.emit(this.videoUrl); // Emit event with the video URL
           },
           (error) => {
             console.error('Error trimming the video:', error);
@@ -232,6 +238,7 @@ export class VideoTrimmerComponent implements OnInit {
             const frameUrl = URL.createObjectURL(blob);
             this.frameUrl = frameUrl; // Display the frame image
             this.isLoading = false; // Remove loading indicator
+            this.frameCaptured.emit(this.frameUrl); // Emit event with the frame URL
           },
           (error) => {
             console.error('Error fetching frame:', error);

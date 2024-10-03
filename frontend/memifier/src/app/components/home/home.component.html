@@ -17,7 +17,10 @@
     style="height: 80vh"
   >
     <!-- Video Trimmer for Upload -->
-    <video-trimmer></video-trimmer>
+    <video-trimmer
+      (videoTrimmed)="onVideoTrimmed($event)"
+      (frameCaptured)="onFrameCaptured($event)"
+    ></video-trimmer>
     <div class="w-100 flex justify-end">
       <button class="btn btn-primary w-1/3" (click)="nextStep()">
         Next: Edit
@@ -30,6 +33,11 @@
     class="flex flex-col justify-between"
     style="height: 80vh"
   >
+
+    <div *ngIf="responseData">
+      <video *ngIf="responseType === 'video'" [src]="responseData" controls></video>
+      <img *ngIf="responseType === 'image'" [src]="responseData" alt="Captured Frame">
+    </div>
     <!-- Edit Component -->
     <app-edit></app-edit>
 
