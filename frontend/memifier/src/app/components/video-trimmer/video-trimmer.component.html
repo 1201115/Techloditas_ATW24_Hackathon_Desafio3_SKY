@@ -64,9 +64,9 @@
     ></div>
   </div>
 
-  <div class="flex flex-row justify-center gap-10">
+  <div class="flex flex-row justify-start gap-10">
     <!-- Custom Play/Pause Controls -->
-    <div class="flex items-center space-x-4" *ngIf="isVideoLoaded">
+    <div class="flex items-start space-x-4" *ngIf="isVideoLoaded">
       <button class="btn btn-secondary" (click)="togglePlayPause()">
         {{ isPlaying ? "Pause" : "Play" }}
       </button>
@@ -76,13 +76,22 @@
       >
     </div>
     <!-- Save Button -->
-    <button
-      *ngIf="isVideoLoaded"
-      class="btn btn-primary"
-      (click)="onTrimVideo()"
-    >
-      Trim Video
-    </button>
+    <div class="flex flex-col gap-5">
+      <button
+        *ngIf="isVideoLoaded"
+        class="btn btn-primary"
+        (click)="onTrimVideo()"
+      >
+        Trim Video
+      </button>
+      <button
+        *ngIf="isVideoLoaded"
+        class="btn btn-secondary"
+        (click)="requestFrame()"
+      >
+        Capture Frame
+      </button>
+    </div>
   </div>
 
   <!-- Loading Indicator -->
@@ -95,5 +104,11 @@
   <div *ngIf="gifUrl && !isLoading" class="mt-4">
     <h3>Your Trimmed GIF:</h3>
     <img [src]="gifUrl" alt="Trimmed GIF" />
+  </div>
+
+  <!-- Display the requested frame -->
+  <div *ngIf="frameUrl && !isLoading" class="mt-4">
+    <h3>Frame at Needle Position:</h3>
+    <img [src]="frameUrl" alt="Video Frame" />
   </div>
 </div>

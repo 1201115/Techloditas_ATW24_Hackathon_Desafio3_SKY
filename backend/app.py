@@ -48,12 +48,52 @@ def trim_to_gif():
 
     try:
         # Write the resized GIF to the file system
-        resized_clip.write_gif(gif_path)
+        resized_clip.write_gif(gif_path, fps=24)
     except Exception as e:
         return {'error': f'Failed to create GIF: {str(e)}'}, 500
 
     # Return the GIF as a response
     return send_file(gif_path, mimetype='image/gif', as_attachment=True, download_name=gif_filename)
+
+@app.route('/frame-at-time', methods=['POST'])
+def frame_at_time():
+    if 'video' not in request.files:
+        return {'error': 'No video file provided'}, 400
+
+    video_file = request.files['video']
+    filename = secure_filename(video_file.filename)
+    video_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    video_file.save(video_path)
+
+    try:
+        timestamp = float(request.form.get('timestamp', 0))
+    except (ValueError, TypeError):
+        return {'error': 'Invalid timestamp value'}, 400
+
+    try:
+        clip = VideoFileClip(video_path)
+    except Exception as e:
+        return {'error': f'Failed to process video: {str(e)}'}, 500
+
+    # Ensure the requested timestamp is within the video duration
+    if timestamp < 0 or timestamp > clip.duration:
+        return {'error': 'Timestamp out of bounds'}, 400
+
+    # Capture the frame at the requested timestamp
+    frame_filename = filename.rsplit('.', 1)[0] + f'_frame_{int(timestamp)}.png'
+    frame_path = os.path.join(app.config['UPLOAD_FOLDER'], frame_filename)
+
+    try:
+        # Save the frame as an image
+        frame_image = clip.get_frame(timestamp)
+        from PIL import Image
+        image = Image.fromarray(frame_image)
+        image.save(frame_path)
+    except Exception as e:
+        return {'error': f'Failed to extract frame: {str(e)}'}, 500
+
+    return send_file(frame_path, mimetype='image/png', as_attachment=True, download_name=frame_filename)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

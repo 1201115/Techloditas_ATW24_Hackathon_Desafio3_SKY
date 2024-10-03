@@ -29,6 +29,8 @@ export class VideoTrimmerComponent implements OnInit {
   gifUrl: string | null = null; // Store the URL of the output GIF
   videoFile: File | null = null;
   isLoading = false; // Loading indicator
+  requestedTimestamp = 5; // Example timestamp
+  frameUrl: string | null = null; // To store the frame image URL
 
   constructor(private videoTrimmerService: VideoTrimmerService) {}
 
@@ -191,6 +193,28 @@ export class VideoTrimmerComponent implements OnInit {
           },
           (error) => {
             console.error('Error trimming the video:', error);
+            this.isLoading = false; // Remove loading indicator
+          }
+        );
+    }
+  }
+
+  // Request a frame at a specific timestamp
+  requestFrame(): void {
+    if (this.videoFile) {
+      this.isLoading = true; // Set loading to true before the request
+
+      const currentTime = this.videoPlayer.nativeElement.currentTime; // Get current video time (needle position)
+      this.videoTrimmerService
+        .getFrameAtTime(this.videoFile, currentTime)
+        .subscribe(
+          (blob) => {
+            const frameUrl = URL.createObjectURL(blob);
+            this.frameUrl = frameUrl; // Display the frame image
+            this.isLoading = false; // Remove loading indicator
+          },
+          (error) => {
+            console.error('Error fetching frame:', error);
             this.isLoading = false; // Remove loading indicator
           }
         );
