@@ -1,8 +1,9 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, after_this_request
 import os
 from moviepy.editor import VideoFileClip
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
+from PIL import Image
 
 app = Flask(__name__)
 
@@ -15,6 +16,10 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Ensure upload folder exists
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
+
+@app.route('/')
+def index():
+    return 'Hello, Equipa Vencedora!'
 
 @app.route('/trim-to-gif', methods=['POST'])
 def trim_to_gif():
@@ -52,6 +57,17 @@ def trim_to_gif():
     except Exception as e:
         return {'error': f'Failed to create GIF: {str(e)}'}, 500
 
+    @after_this_request
+    def cleanup(response):
+        try:
+            if os.path.exists(gif_path):
+                os.remove(gif_path)
+            if os.path.exists(video_path):
+                os.remove(video_path)
+        except Exception as e:
+            print(f'Error deleting files: {str(e)}')
+        return response
+
     # Return the GIF as a response
     return send_file(gif_path, mimetype='image/gif', as_attachment=True, download_name=gif_filename)
 
@@ -86,14 +102,23 @@ def frame_at_time():
     try:
         # Save the frame as an image
         frame_image = clip.get_frame(timestamp)
-        from PIL import Image
         image = Image.fromarray(frame_image)
         image.save(frame_path)
     except Exception as e:
         return {'error': f'Failed to extract frame: {str(e)}'}, 500
 
+    @after_this_request
+    def cleanup(response):
+        try:
+            if os.path.exists(frame_path):
+                os.remove(frame_path)
+            if os.path.exists(video_path):
+                os.remove(video_path)
+        except Exception as e:
+            print(f'Error deleting files: {str(e)}')
+        return response
+
     return send_file(frame_path, mimetype='image/png', as_attachment=True, download_name=frame_filename)
 
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)
