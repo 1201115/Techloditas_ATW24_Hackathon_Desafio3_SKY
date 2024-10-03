@@ -35,54 +35,31 @@
       >
         {{ isPlaying ? 'Pause' : 'Play' }}
       </button>
-
-      <!-- Custom Timeline for current playback -->
-      <input
-        #timeline
-        type="range"
-        class="range-slider w-64"
-        [min]="0"
-        [max]="videoDuration"
-        step="0.01"
-        [(ngModel)]="currentTime"
-        (input)="onTimelineChange()"
-      />
       <span>{{ currentTime | number:'1.2-2' }} / {{ videoDuration | number:'1.2-2' }}s</span>
     </div>
   </div>
 
-  <!-- Trim controls (same as before) -->
-  <div
-    *ngIf="isVideoLoaded"
-    class="flex justify-between w-full max-w-4xl space-x-4"
-  >
-    <!-- Trim Start -->
-    <div class="flex flex-col items-center space-y-2">
-      <label class="font-semibold">Start Time: {{ trimStart | number:'1.2-2' }}s</label>
-      <input
-        type="range"
-        class="accent-green-500 w-full"
-        [(ngModel)]="trimStart"
-        [min]="0"
-        [max]="trimEnd"
-        step="0.01"
-        (input)="onTrimChange()"
-      />
-    </div>
+  <!-- Custom timeline with draggable handles for trimStart and trimEnd -->
+  <div #timeline class="timeline-container" *ngIf="isVideoLoaded">
+    <div
+      class="timeline-range"
+      [style.left.%]="(trimStart / videoDuration) * 100"
+      [style.width.%]="((trimEnd - trimStart) / videoDuration) * 100"
+    ></div>
 
-    <!-- Trim End -->
-    <div class="flex flex-col items-center space-y-2">
-      <label class="font-semibold">End Time: {{ trimEnd | number:'1.2-2' }}s</label>
-      <input
-        type="range"
-        class="accent-red-500 w-full"
-        [(ngModel)]="trimEnd"
-        [min]="trimStart"
-        [max]="videoDuration"
-        step="0.01"
-        (input)="onTrimChange()"
-      />
-    </div>
+    <!-- Start handle -->
+    <div
+      class="handle start"
+      [style.left.%]="(trimStart / videoDuration) * 100"
+      (mousedown)="onDragStart($event, 'start')"
+    ></div>
+
+    <!-- End handle -->
+    <div
+      class="handle end"
+      [style.left.%]="(trimEnd / videoDuration) * 100"
+      (mousedown)="onDragStart($event, 'end')"
+    ></div>
   </div>
 
   <!-- Save Button -->

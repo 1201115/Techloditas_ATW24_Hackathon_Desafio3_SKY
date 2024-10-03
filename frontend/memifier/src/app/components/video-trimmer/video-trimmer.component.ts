@@ -1,5 +1,5 @@
 // video-trimmer.component.ts
-import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, HostListener, OnInit } from '@angular/core';
 
 @Component({
   selector: 'video-trimmer',
@@ -8,14 +8,15 @@ import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 })
 export class VideoTrimmerComponent implements OnInit {
   @ViewChild('videoPlayer', { static: false }) videoPlayer!: ElementRef<HTMLVideoElement>;
-  @ViewChild('timeline', { static: false }) timeline!: ElementRef<HTMLInputElement>;
+  @ViewChild('timeline', { static: false }) timeline!: ElementRef<HTMLDivElement>; // Added reference to timeline
 
   videoDuration = 0;
   currentTime = 0;
   trimStart = 0;
   trimEnd = 0;
-  isVideoLoaded = false; // To control the visibility of the video and trim controls
-  isPlaying = false; // To control play/pause state
+  isVideoLoaded = false;
+  isPlaying = false;
+  draggingHandle: 'start' | 'end' | null = null; // To track which handle is being dragged
 
   ngOnInit(): void {}
 
@@ -26,11 +27,10 @@ export class VideoTrimmerComponent implements OnInit {
       this.videoPlayer.nativeElement.src = videoURL;
       this.isVideoLoaded = true;
 
-      // Wait for the video metadata to load before getting the duration
+      // Wait for video metadata to load before getting the duration
       this.videoPlayer.nativeElement.onloadedmetadata = () => {
         this.videoDuration = this.videoPlayer.nativeElement.duration;
         this.trimEnd = this.videoDuration; // Set trim end to the full duration initially
-        this.updateTimelineBackground();
       };
     }
   }
@@ -49,10 +49,6 @@ export class VideoTrimmerComponent implements OnInit {
     }
   }
 
-  onTimelineChange(): void {
-    this.videoPlayer.nativeElement.currentTime = this.currentTime;
-  }
-
   togglePlayPause(): void {
     const video = this.videoPlayer.nativeElement;
 
@@ -69,39 +65,33 @@ export class VideoTrimmerComponent implements OnInit {
     }
   }
 
-  onTrimChange(): void {
-    // Ensure trim start is before trim end
-    if (this.trimStart >= this.trimEnd) {
-      this.trimStart = this.trimEnd - 0.01;
-    }
-    // Sync the video player to start trimming range
-    this.videoPlayer.nativeElement.currentTime = this.trimStart;
-    this.updateTimelineBackground();
+  onDragStart(event: MouseEvent, handle: 'start' | 'end'): void {
+    this.draggingHandle = handle;
   }
 
-  updateTimelineBackground(): void {
-    // Calculate the percentage for trimStart and trimEnd based on the video duration
-    const startPercentage = (this.trimStart / this.videoDuration) * 100;
-    const endPercentage = (this.trimEnd / this.videoDuration) * 100;
+  @HostListener('window:mousemove', ['$event'])
+  onDrag(event: MouseEvent): void {
+    if (!this.draggingHandle) return;
 
-    // Update the timeline's background to reflect the selected range
-    this.timeline.nativeElement.style.background = `linear-gradient(
-      to right,
-      #ddd 0%,
-      #ddd ${startPercentage}%,
-      #4CAF50 ${startPercentage}%,
-      #4CAF50 ${endPercentage}%,
-      #ddd ${endPercentage}%,
-      #ddd 100%
-    )`;
+    const timelineRect = this.timeline.nativeElement.getBoundingClientRect();
+    const offsetX = event.clientX - timelineRect.left;
+    const percentage = Math.max(0, Math.min(1, offsetX / timelineRect.width)); // Ensure percentage is between 0 and 1
+    const newTime = percentage * this.videoDuration; // Convert percentage to actual video time
+
+    if (this.draggingHandle === 'start') {
+      this.trimStart = Math.min(newTime, this.trimEnd - 0.1); // Prevent trimStart from exceeding trimEnd
+    } else if (this.draggingHandle === 'end') {
+      this.trimEnd = Math.max(newTime, this.trimStart + 0.1); // Prevent trimEnd from going before trimStart
+    }
+  }
+
+  @HostListener('window:mouseup')
+  onDragEnd(): void {
+    this.draggingHandle = null; // Reset dragging handle when the mouse is released
   }
 
   saveTrimmedClip(): void {
-    // Start and end values for the trim
-    const start = this.trimStart;
-    const end = this.trimEnd;
-
-    console.log(`Trimmed clip: Start - ${start}s, End - ${end}s`);
+    console.log(`Trimmed clip: Start - ${this.trimStart}s, End - ${this.trimEnd}s`);
     // Logic to actually trim and save the video clip can go here
   }
 }

@@ -32,3 +32,41 @@
   background: #4CAF50;
   cursor: pointer;
 }
+
+
+/* video-trimmer.component.css */
+.timeline-container {
+  position: relative;
+  width: 100%;
+  height: 10px;
+  background-color: #ddd;
+  border-radius: 5px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.timeline-range {
+  position: absolute;
+  height: 100%;
+  background-color: #4CAF50;
+  z-index: 1;
+}
+
+.handle {
+  position: absolute;
+  top: -5px;
+  width: 15px;
+  height: 20px;
+  background-color: #000;
+  border-radius: 2px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.handle.start {
+  left: 0;
+}
+
+.handle.end {
+  right: 0;
+}
