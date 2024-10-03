@@ -59,7 +59,7 @@ def trim_to_gif():
 
     try:
         # Write the resized GIF to the file system
-        resized_clip.write_gif(gif_path, fps=clip_fps, progress_bar=False)
+        resized_clip.write_gif(gif_path, fps=clip_fps)
     except Exception as e:
         return {'error': f'Failed to create GIF: {str(e)}'}, 500
 
