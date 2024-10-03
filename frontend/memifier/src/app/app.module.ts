@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { provideHttpClient } from '@angular/common/http';
 import { EditComponent } from './components/edit/edit.component';
 import { ExportComponent } from './components/export/export.component';
-import { TextOverlayComponent } from './text-overlay/text-overlay.component';
+import { TextOverlayComponent } from './components/text-overlay/text-overlay.component';
 
 @NgModule({
   declarations: [AppComponent, HomeComponent, VideoTrimmerComponent, EditComponent, ExportComponent, TextOverlayComponent],

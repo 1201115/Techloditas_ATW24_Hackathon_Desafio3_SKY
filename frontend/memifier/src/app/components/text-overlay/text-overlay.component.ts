@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
-
+import { VideoExportService } from '../../services/video-export.service'; // Import the new service
 @Component({
   selector: 'text-overlay',
   templateUrl: './text-overlay.component.html',
@@ -13,13 +13,13 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
 
   @ViewChild('textInput') textInput!: ElementRef;
   @ViewChild('videoElement') videoElement!: ElementRef<HTMLVideoElement>;
-  @ViewChild('overlayText') overlayText!: ElementRef;
+  @ViewChild('overlayText', { static: false }) overlayText!: ElementRef; // Ensure overlayText is referenced correctly
 
   private isDragging = false;
   private startX = 0;
   private startY = 0;
 
-  constructor() {}
+  constructor(private readonly videoExportService: VideoExportService) {} // Inject the new service
 
   ngOnInit(): void {}
 
@@ -68,5 +68,51 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
   @HostListener('document:mouseup')
   onMouseUp() {
     this.isDragging = false;
+  }
+
+  onExportVideo(): void {
+    const videoUrl = this.videoElement.nativeElement.src;
+    const exportType = 'GIF'; // Default export type
+    const texts = [
+      {
+        text: this.text,
+        color: 'white',
+        x: this.overlayText ? this.overlayText.nativeElement.offsetLeft : 0,
+        y: this.overlayText ? this.overlayText.nativeElement.offsetTop : 0
+      }
+    ];
+  
+    fetch(videoUrl)
+      .then(response => response.blob())
+      .then(blob => {
+        const file = new File([blob], 'video.mp4', { type: 'video/mp4' });
+  
+        const formData = new FormData();
+        formData.append('video', file);
+        formData.append('exportType', exportType);
+        formData.append('texts', JSON.stringify(texts));
+  
+        fetch('/export-video', {
+          method: 'POST',
+          body: formData,
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = exportType === 'GIF' ? 'exported_video.gif' : 'exported_video.mp4';
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching video blob:', error);
+      });
   }
 }
