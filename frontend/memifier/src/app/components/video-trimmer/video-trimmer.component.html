@@ -38,8 +38,9 @@
 
       <!-- Custom Timeline for current playback -->
       <input
+        #timeline
         type="range"
-        class="w-64 accent-blue-500"
+        class="range-slider w-64"
         [min]="0"
         [max]="videoDuration"
         step="0.01"
