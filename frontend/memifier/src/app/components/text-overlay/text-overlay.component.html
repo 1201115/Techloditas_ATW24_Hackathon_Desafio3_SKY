@@ -1,38 +1,49 @@
-<div class="media-container">
-  <video
-    #videoElement
-    *ngIf="mediaType === 'video'"
-    [src]="mediaSrc"
-    autoplay
-    loop
-    muted
-    (ended)="restartVideo($event)"
-  ></video>
-  <img *ngIf="mediaType === 'image'" [src]="mediaSrc" alt="Captured Frame" />
+<div class="flex flex-col gap-10">
+  <div class="media-container">
+    <video
+      #videoElement
+      *ngIf="mediaType === 'video'"
+      [src]="mediaSrc"
+      autoplay
+      loop
+      muted
+      (ended)="restartVideo($event)"
+    ></video>
+    <img *ngIf="mediaType === 'image'" [src]="mediaSrc" alt="Captured Frame" />
 
-  <div
-    #overlayText
-    class="overlay-text"
-    *ngIf="text"
-    (mousedown)="startDrag($event)"
-  >
-    {{ text }}
+    <div
+      #overlayText
+      class="overlay-text"
+      *ngIf="text"
+      (mousedown)="startDrag($event)"
+    >
+      {{ text }}
+    </div>
   </div>
-</div>
 
-<div class="flex flex-row justify-between">
-  <button class="btn btn-primary" *ngIf="!isEditing" (click)="addText()">
-    Add Text
-  </button>
+  <div class="flex flex-row justify-between">
+    <button [disabled]="isEditing" class="btn btn-primary" (click)="addText()">
+      Add Text
+    </button>
+
+    <!-- Export button -->
+    <button
+      [disabled]="isEditing"
+      class="btn btn-primary"
+      (click)="onExportVideo()"
+    >
+      Export Video
+    </button>
+  </div>
 
   <!-- Overlay for text input -->
-  <div class="text-input-overlay" *ngIf="isEditing">
-    <input #textInput [(ngModel)]="text" placeholder="Enter text" />
+  <div class="flex flex-col gap-5" *ngIf="isEditing">
+    <input
+      class="input input-bordered w-full max-w-xs"
+      #textInput
+      [(ngModel)]="text"
+      placeholder="Enter text"
+    />
     <button class="btn btn-primary" (click)="saveText()">Save</button>
   </div>
-
-  <!-- Export button -->
-  <button class="btn btn-primary" (click)="onExportVideo()">
-    Export Video
-  </button>
 </div>

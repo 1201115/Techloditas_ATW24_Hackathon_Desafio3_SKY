@@ -88,16 +88,16 @@
       <button
         *ngIf="isVideoLoaded"
         class="btn btn-primary"
-        (click)="onTrimVideo()"
-      >
-        Trim Video
-      </button>
-      <button
-        *ngIf="isVideoLoaded"
-        class="btn btn-secondary"
         (click)="requestFrame()"
       >
         Capture Frame
+      </button>
+      <button
+        *ngIf="isVideoLoaded"
+        class="btn btn-primary"
+        (click)="onTrimVideo()"
+      >
+        Trim Video
       </button>
     </div>
   </div>

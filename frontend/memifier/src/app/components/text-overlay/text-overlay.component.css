@@ -1,58 +1,23 @@
 .media-container {
-    position: relative;
-    display: inline-block;
-    width: 100%;
-  }
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
 
-  video,
-  img {
-    width: 100%;
-    height: auto;
-  }
+video,
+img {
+  width: 100%;
+  height: auto;
+}
 
-  .overlay-text {
-    position: absolute;
-    top: 10%;
-    left: 10%;
-    color: white;
-    font-size: 4vw; /* Use viewport width for font size */
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-    max-width: 80%; /* Ensure text doesn't overflow */
-    word-wrap: break-word; /* Break long words */
-    cursor: move; /* Indicate draggable text */
-  }
-
-  /* Overlay for text input */
-  .text-input-overlay {
-    position: absolute;
-    top: 10%;
-    left: 10%;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 10px;
-    border-radius: 5px;
-  }
-
-  .text-input-overlay input {
-    width: 100%;
-    padding: 1vw;
-    font-size: 4vw;
-    margin-bottom: 10px;
-  }
-
-  .text-input-overlay button {
-    padding: 1vw;
-    font-size: 4vw;
-  }
-
-  /* Media query for smaller screens */
-  @media (max-width: 600px) {
-    .overlay-text {
-      font-size: 6vw; /* Increase font size for smaller screens */
-    }
-
-    .text-input-overlay input,
-    .text-input-overlay button {
-      font-size: 6vw;
-      padding: 2vw;
-    }
-  }
+.overlay-text {
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  color: white;
+  font-size: 4vw; /* Use viewport width for font size */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  max-width: 80%; /* Ensure text doesn't overflow */
+  word-wrap: break-word; /* Break long words */
+  cursor: move; /* Indicate draggable text */
+}
