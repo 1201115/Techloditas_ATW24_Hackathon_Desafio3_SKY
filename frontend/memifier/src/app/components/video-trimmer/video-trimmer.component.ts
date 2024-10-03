@@ -6,6 +6,7 @@ import {
   HostListener,
   OnInit,
 } from '@angular/core';
+import { VideoTrimmerService } from '../../services/video-trimmer.service';
 
 @Component({
   selector: 'video-trimmer',
@@ -25,12 +26,18 @@ export class VideoTrimmerComponent implements OnInit {
   isVideoLoaded = false;
   isPlaying = false;
   draggingHandle: 'start' | 'end' | 'needle' | null = null; // To track which handle is being dragged
+  gifUrl: string | null = null; // Store the URL of the output GIF
+  videoFile: File | null = null;
+  isLoading = false; // Loading indicator
+
+  constructor(private videoTrimmerService: VideoTrimmerService) {}
 
   ngOnInit(): void {}
 
   onFileSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
+      this.videoFile = file;
       const videoURL = URL.createObjectURL(file);
       this.videoPlayer.nativeElement.src = videoURL;
       this.isVideoLoaded = true;
@@ -168,5 +175,25 @@ export class VideoTrimmerComponent implements OnInit {
     // Start dragging the needle
     this.onNeedleDrag(clientX);
     this.draggingHandle = 'needle';
+  }
+
+  // Handle trim button click
+  onTrimVideo(): void {
+    if (this.videoFile && this.isVideoLoaded) {
+      this.isLoading = true; // Set loading to true before the request
+
+      this.videoTrimmerService
+        .trimVideo(this.videoFile, this.trimStart, this.trimEnd)
+        .subscribe(
+          (blob) => {
+            this.gifUrl = URL.createObjectURL(blob); // Store the GIF URL
+            this.isLoading = false; // Remove loading indicator
+          },
+          (error) => {
+            console.error('Error trimming the video:', error);
+            this.isLoading = false; // Remove loading indicator
+          }
+        );
+    }
   }
 }

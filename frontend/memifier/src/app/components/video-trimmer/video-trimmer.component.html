@@ -79,9 +79,21 @@
     <button
       *ngIf="isVideoLoaded"
       class="btn btn-primary"
-      (click)="saveTrimmedClip()"
+      (click)="onTrimVideo()"
     >
       Trim Video
     </button>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="mt-4">
+    <h3>Processing... Please wait.</h3>
+    <!-- Optionally, add a spinner here -->
+  </div>
+
+  <!-- Display the trimmed GIF -->
+  <div *ngIf="gifUrl && !isLoading" class="mt-4">
+    <h3>Your Trimmed GIF:</h3>
+    <img [src]="gifUrl" alt="Trimmed GIF" />
   </div>
 </div>

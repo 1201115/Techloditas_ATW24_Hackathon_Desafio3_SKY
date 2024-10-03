@@ -5,11 +5,12 @@ import { AppRoutingModule } from './app-routing.module';
 import { HomeComponent } from './components/home/home.component';
 import { VideoTrimmerComponent } from './components/video-trimmer/video-trimmer.component';
 import { FormsModule } from '@angular/forms';
+import { provideHttpClient } from '@angular/common/http';
 
 @NgModule({
   declarations: [AppComponent, HomeComponent, VideoTrimmerComponent],
   imports: [BrowserModule, AppRoutingModule, FormsModule],
-  providers: [],
+  providers: [provideHttpClient()],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

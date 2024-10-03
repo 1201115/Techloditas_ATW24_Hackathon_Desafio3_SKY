@@ -7,3 +7,4 @@ frontend/memifier/.editorconfig
 /frontend/memifier/android
 /frontend/memifier/dist
 frontend/memifier/package-lock.json
+/backend/uploads
