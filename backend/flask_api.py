@@ -109,7 +109,8 @@ def trim_to_gif():
 
     gif_filename = filename.rsplit(".", 1)[0] + ".gif"
     gif_path = os.path.join(app.config["UPLOAD_FOLDER"], gif_filename)
-
+    # get video fps
+    clip_fps = clip.fps / 2
     try:
         # Write the resized GIF to the file system
         resized_clip.write_gif(gif_path, fps=clip_fps)
