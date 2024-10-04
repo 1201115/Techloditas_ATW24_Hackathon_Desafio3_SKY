@@ -45,11 +45,16 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
     if (this.isEditing) {
       this.textInput.nativeElement.focus();
     }
+    // if mediaType is image the layouts should only be Story, otherwise all layouts should be available
+    if (this.mediaType === "image") {
+      this.layouts = ["Story"];
+    } else {
+      this.layouts = ["Reel", "Short", "Gif", "Story"];
+    }
   }
 
   // Use this method to emit the selected layout whenever it changes
   onLayoutChange() {
-    console.log("Selected Layout:", this.selectedLayout);
     this.layoutChanged.emit(this.selectedLayout); // Emit the selected layout when it changes
   }
 

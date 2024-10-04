@@ -154,7 +154,7 @@ def frame_at_time():
         frame_image = clip.get_frame(timestamp)
         image = Image.fromarray(frame_image)
 
-        image = h.adjust_aspect_ratio(image, target_aspect_ratio=(9, 16))
+        #image = h.adjust_aspect_ratio(image, target_aspect_ratio=(9, 16))
 
         image.save(frame_path)
     except Exception as e:
@@ -253,6 +253,8 @@ def export_image():
     output_image_filename = filename.rsplit(".", 1)[0] + "_with_text.png"
     output_image_path = os.path.join(app.config["UPLOAD_FOLDER"], output_image_filename)
 
+    modified_image = h.adjust_aspect_ratio(modified_image, target_aspect_ratio=(9, 16))
+    
     try:
         modified_image.save(output_image_path)
     except Exception as e:
