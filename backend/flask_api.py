@@ -110,9 +110,6 @@ def trim_to_gif():
     gif_filename = filename.rsplit(".", 1)[0] + ".gif"
     gif_path = os.path.join(app.config["UPLOAD_FOLDER"], gif_filename)
 
-    # get video fps
-    clip_fps = clip.fps / 2
-
     try:
         # Write the resized GIF to the file system
         resized_clip.write_gif(gif_path, fps=clip_fps)
@@ -197,21 +194,27 @@ def export_video():
 
     data = json.loads(request.form.get("data", "{}"))
     format = data.get("layout", "")
-    print(format)
     if format:
         if format in ["Story", "Reel", "Short"]:
             final_clip = h.format_video_for_platform(final_clip, target_aspect_ratio=(9, 16))
+            try:
+                # Write the final video to a file
+                final_clip.write_videofile(trimmed_video_path, codec="libx264")
+            except Exception as e:
+                return {"error": f"Failed to create the video: {str(e)}"}, 500
         elif format in ["Gif"]:
-            pass
-
-    try:
-        # Write the final video to a file
-        final_clip.write_videofile(trimmed_video_path, codec="libx264")
-    except Exception as e:
-        return {"error": f"Failed to create the video: {str(e)}"}, 500
+            try:
+                clip_fps = clip.fps / 2
+                gif_filename = filename.rsplit(".", 1)[0] + ".gif"
+                gif_path = os.path.join(app.config["UPLOAD_FOLDER"], gif_filename)
+                final_clip.write_gif(gif_path, fps=clip_fps)
+                return send_file(gif_path, mimetype="image/gif", as_attachment=True, download_name=gif_filename)
+            except Exception as e:
+                return {"error": f"Failed to create GIF: {str(e)}"}, 500
 
     # Return the final video with text overlays as a response
     return send_file(trimmed_video_path, mimetype="video/mp4", as_attachment=True, download_name=trimmed_video_filename)
+
 
 @app.route("/export-image", methods=["POST"])
 def export_image():
@@ -253,6 +256,7 @@ def export_image():
 
     # Return the final image with text overlays as a response
     return send_file(output_image_path, mimetype="image/png", as_attachment=True, download_name=output_image_filename)
+
 
 # Function to add text overlays to an image using PIL
 def add_text_to_image(image, texts):
