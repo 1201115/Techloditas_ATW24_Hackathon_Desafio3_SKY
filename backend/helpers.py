@@ -101,3 +101,24 @@ def format_video_for_platform(clip, target_aspect_ratio=(16, 9)):
     else:
         resized_clip = clip
     return resized_clip
+
+
+def adjust_aspect_ratio(image, target_aspect_ratio=(9, 16)):
+    img_width, img_height = image.size
+    target_width, target_height = target_aspect_ratio
+
+    target_ratio = target_width / target_height
+    current_ratio = img_width / img_height
+
+    if current_ratio > target_ratio:
+        new_width = int(img_height * target_ratio)
+        left = (img_width - new_width) // 2
+        right = left + new_width
+        image = image.crop((left, 0, right, img_height))
+    elif current_ratio < target_ratio:
+        new_height = int(img_width / target_ratio)
+        top = (img_height - new_height) // 2
+        bottom = top + new_height
+        image = image.crop((0, top, img_width, bottom))
+
+    return image

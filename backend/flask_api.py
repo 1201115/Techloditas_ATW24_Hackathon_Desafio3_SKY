@@ -153,6 +153,9 @@ def frame_at_time():
         # Save the frame as an image
         frame_image = clip.get_frame(timestamp)
         image = Image.fromarray(frame_image)
+
+        image = h.adjust_aspect_ratio(image, target_aspect_ratio=(9, 16))
+
         image.save(frame_path)
     except Exception as e:
         return {"error": f"Failed to extract frame: {str(e)}"}, 500
