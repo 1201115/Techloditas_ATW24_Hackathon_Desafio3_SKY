@@ -152,5 +152,56 @@ def frame_at_time():
     return send_file(frame_path, mimetype="image/png", as_attachment=True, download_name=frame_filename)
 
 
+@app.route("/export-video", methods=["POST"])
+def export_video():
+    if "video" not in request.files:
+        return {"error": "No video file provided"}, 400
+
+    video_file = request.files["video"]
+    filename = secure_filename(video_file.filename)
+    video_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    video_file.save(video_path)
+
+    try:
+        trim_start = float(request.form.get("trimStart", 0))
+        trim_end = float(request.form.get("trimEnd", 0))
+    except (ValueError, TypeError):
+        return {"error": "Invalid trimStart or trimEnd values"}, 400
+
+    try:
+        clip = VideoFileClip(video_path)
+    except Exception as e:
+        return {"error": f"Failed to process video: {str(e)}"}, 500
+
+    if trim_start < 0 or trim_end > clip.duration or trim_start >= trim_end:
+        return {"error": "Invalid trim times"}, 400
+
+    # Trim the video
+    trimmed_clip = clip.subclip(trim_start, trim_end)
+
+    trimmed_video_filename = filename.rsplit(".", 1)[0] + "_trimmed.mp4"
+    trimmed_video_path = os.path.join(app.config["UPLOAD_FOLDER"], trimmed_video_filename)
+    # Check for text overlays in the request
+    text_overlays = [{"text": "bla bla bla"}]  # TODO: Remove
+    # text_overlays = request.form.get("texts")
+
+    if text_overlays:
+        try:
+            final_clip = h.add_text_overlays(trimmed_clip, text_overlays)
+        except (json.JSONDecodeError, ValueError, TypeError) as e:
+            return {"error": f"Failed to process text overlays: {str(e)}"}, 400
+    else:
+        final_clip = trimmed_clip
+
+    try:
+        # Write the trimmed video to a file
+        final_clip.write_videofile(trimmed_video_path, codec="libx264")
+    except Exception as e:
+        return {"error": f"Failed to create trimmed video: {str(e)}"}, 500
+
+    # Return the trimmed video as a response
+    return send_file(trimmed_video_path, mimetype="video/mp4", as_attachment=True, download_name=trimmed_video_filename)
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True, threaded=True)
