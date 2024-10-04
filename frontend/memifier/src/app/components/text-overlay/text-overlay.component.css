@@ -12,8 +12,8 @@ img {
 
 .overlay-text {
   position: absolute;
-  top: 10%;
-  left: 10%;
+  top: 10px;
+  left: 10px;
   color: white;
   font-size: 4vw; /* Use viewport width for font size */
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);

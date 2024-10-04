@@ -28,7 +28,7 @@
 
     <!-- Export button -->
     <button
-      [disabled]="isEditing"
+      [disabled]="isEditing || !text"
       class="btn btn-primary"
       (click)="onExportVideo()"
     >

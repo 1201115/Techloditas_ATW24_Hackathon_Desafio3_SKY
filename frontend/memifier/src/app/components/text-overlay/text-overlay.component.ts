@@ -83,14 +83,28 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
   }
 
   onExportVideo(): void {
-    const videoUrl = this.videoElement.nativeElement.src;
+    const videoElement = this.videoElement.nativeElement;
+    const videoUrl = videoElement.src;
     const exportType = 'GIF'; // Default export type
+
+    // Calculate the scale based on the video size
+    const originalWidth = videoElement.videoWidth;
+    const originalHeight = videoElement.videoHeight;
+    const currentWidth = videoElement.clientWidth;
+    const currentHeight = videoElement.clientHeight;
+
+    const scale = {
+      width: currentWidth / originalWidth,
+      height: currentHeight / originalHeight,
+    };
+
     const texts = [
       {
         text: this.text,
         color: 'white',
-        x: this.overlayText ? this.overlayText.nativeElement.offsetLeft : 0,
-        y: this.overlayText ? this.overlayText.nativeElement.offsetTop : 0,
+        x: this.overlayText.nativeElement.offsetLeft,
+        y: this.overlayText.nativeElement.offsetTop,
+        scale,
       },
     ];
 

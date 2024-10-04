@@ -24,11 +24,9 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-
 @app.route("/")
 def index():
     return "Hello, Equipa Vencedora!"
-
 
 @app.route("/trim-to-video", methods=["POST"])
 def trim_to_video():
@@ -68,7 +66,6 @@ def trim_to_video():
 
     # Return the trimmed video as a response
     return send_file(trimmed_video_path, mimetype="video/mp4", as_attachment=True, download_name=trimmed_video_filename)
-
 
 @app.route("/trim-to-gif", methods=["POST"])
 def trim_to_gif():
@@ -112,7 +109,6 @@ def trim_to_gif():
     # Return the GIF as a response
     return send_file(gif_path, mimetype="image/gif", as_attachment=True, download_name=gif_filename)
 
-
 @app.route("/frame-at-time", methods=["POST"])
 def frame_at_time():
     if "video" not in request.files:
@@ -151,7 +147,6 @@ def frame_at_time():
 
     return send_file(frame_path, mimetype="image/png", as_attachment=True, download_name=frame_filename)
 
-
 @app.route("/export-video", methods=["POST"])
 def export_video():
     if "video" not in request.files:
@@ -167,32 +162,32 @@ def export_video():
     except Exception as e:
         return {"error": f"Failed to process video: {str(e)}"}, 500
 
-    # Trim the video
-    trimmed_clip = clip
-
-    trimmed_video_filename = filename.rsplit(".", 1)[0] + "_trimmed.mp4"
-    trimmed_video_path = os.path.join(app.config["UPLOAD_FOLDER"], trimmed_video_filename)
-    # Check for text overlays in the request
-    text_overlays = [{"text": "bla bla bla"}]  # TODO: Remove
-    # text_overlays = request.form.get("texts")
+    # Extract text overlays from the form data
+    try:
+        text_overlays = json.loads(request.form.get("data", "{}")).get("texts", [])
+    except (json.JSONDecodeError, TypeError):
+        return {"error": "Failed to parse text overlays"}, 400
 
     if text_overlays:
         try:
-            final_clip = h.add_text_overlays(trimmed_clip, text_overlays)
-        except (json.JSONDecodeError, ValueError, TypeError) as e:
+            final_clip = h.add_text_overlays(clip, text_overlays)
+        except (ValueError, TypeError) as e:
             return {"error": f"Failed to process text overlays: {str(e)}"}, 400
     else:
-        final_clip = trimmed_clip
+        final_clip = clip
+
+    # Export the video with text overlays
+    trimmed_video_filename = filename.rsplit(".", 1)[0] + "_with_text.mp4"
+    trimmed_video_path = os.path.join(app.config["UPLOAD_FOLDER"], trimmed_video_filename)
 
     try:
-        # Write the trimmed video to a file
+        # Write the final video to a file
         final_clip.write_videofile(trimmed_video_path, codec="libx264")
     except Exception as e:
-        return {"error": f"Failed to create trimmed video: {str(e)}"}, 500
+        return {"error": f"Failed to create the video: {str(e)}"}, 500
 
-    # Return the trimmed video as a response
+    # Return the final video with text overlays as a response
     return send_file(trimmed_video_path, mimetype="video/mp4", as_attachment=True, download_name=trimmed_video_filename)
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True, threaded=True)
