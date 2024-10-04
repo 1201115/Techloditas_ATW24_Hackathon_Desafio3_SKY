@@ -58,6 +58,7 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
     videoElement.play();
   }
 
+  // Mouse events
   startDrag(event: MouseEvent) {
     this.isDragging = true;
     this.startX = event.clientX - this.overlayText.nativeElement.offsetLeft;
@@ -68,18 +69,54 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
     if (this.isDragging) {
-      this.overlayText.nativeElement.style.left = `${
-        event.clientX - this.startX
-      }px`;
-      this.overlayText.nativeElement.style.top = `${
-        event.clientY - this.startY
-      }px`;
+      this.moveText(event.clientX - this.startX, event.clientY - this.startY);
     }
   }
 
   @HostListener('document:mouseup')
   onMouseUp() {
     this.isDragging = false;
+  }
+
+  // Touch events
+  startTouch(event: TouchEvent) {
+    this.isDragging = true;
+    const touch = event.touches[0];
+    this.startX = touch.clientX - this.overlayText.nativeElement.offsetLeft;
+    this.startY = touch.clientY - this.overlayText.nativeElement.offsetTop;
+    event.preventDefault();
+  }
+
+  @HostListener('document:touchmove', ['$event'])
+  onTouchMove(event: TouchEvent) {
+    if (this.isDragging) {
+      const touch = event.touches[0];
+      this.moveText(touch.clientX - this.startX, touch.clientY - this.startY);
+    }
+  }
+
+  @HostListener('document:touchend')
+  onTouchEnd() {
+    this.isDragging = false;
+  }
+
+  // Utility to move text
+  moveText(x: number, y: number) {
+    // Limit movement within the boundaries of the video element
+    const videoRect = this.videoElement.nativeElement.getBoundingClientRect();
+    const overlayText = this.overlayText.nativeElement;
+
+    const newX = Math.max(
+      0,
+      Math.min(x, videoRect.width - overlayText.offsetWidth)
+    );
+    const newY = Math.max(
+      0,
+      Math.min(y, videoRect.height - overlayText.offsetHeight)
+    );
+
+    overlayText.style.left = `${newX}px`;
+    overlayText.style.top = `${newY}px`;
   }
 
   onExportVideo(): void {
@@ -98,6 +135,11 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
       height: currentHeight / originalHeight,
     };
 
+    // Get the font size from the overlay element (ensure it's set properly in the CSS)
+    const fontSize = window.getComputedStyle(
+      this.overlayText.nativeElement
+    ).fontSize;
+
     const texts = [
       {
         text: this.text,
@@ -105,6 +147,7 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
         x: this.overlayText.nativeElement.offsetLeft,
         y: this.overlayText.nativeElement.offsetTop,
         scale,
+        fontSize: parseFloat(fontSize), // Send the font-size as a number
       },
     ];
 

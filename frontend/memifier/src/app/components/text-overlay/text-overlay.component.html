@@ -16,6 +16,7 @@
       class="overlay-text"
       *ngIf="text"
       (mousedown)="startDrag($event)"
+      (touchstart)="startTouch($event)"
     >
       {{ text }}
     </div>

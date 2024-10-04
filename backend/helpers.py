@@ -4,7 +4,7 @@ def add_text_overlays(clip, texts):
     text_clips = []
     for text_data in texts:
         text_content = text_data.get("text", "")
-        font_size = int(text_data.get("font-size", 55))
+        font_size = float(text_data.get("fontSize", 55))  # Get the font size from the request
         color = text_data.get("color", "white")
         x = int(text_data.get("x", 0))
         y = int(text_data.get("y", 0))
@@ -18,10 +18,13 @@ def add_text_overlays(clip, texts):
         adjusted_x = x / scale_width
         adjusted_y = y / scale_height
 
+        # Adjust the font size based on the scale (average of width and height scale)
+        adjusted_font_size = font_size / ((scale_width + scale_height) / 2)
+
         if text_content:
             text_clip = TextClip(
                 text_content,
-                fontsize=font_size,
+                fontsize=adjusted_font_size,
                 color=color,
                 font="Arial",
                 stroke_color="black",
