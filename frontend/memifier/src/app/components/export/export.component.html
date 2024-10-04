@@ -1,1 +1,4 @@
-<p>export works!</p>
+<div *ngIf="exportedVideoUrl" class="flex flex-col items-center">
+  <h3>Your Exported Video:</h3>
+  <video [src]="exportedVideoUrl" controls class="w-full max-w-lg"></video>
+</div>

@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
+import { TextOverlayComponent } from '../text-overlay/text-overlay.component';
 
 @Component({
   selector: 'home',
@@ -9,10 +10,18 @@ export class HomeComponent {
   currentStep = 1;
   responseData: string | null = null;
   responseType: 'video' | 'image' | null = null;
-  
+  exportUrl: string | null = null; // For storing the exported video URL
+
+  @ViewChild(TextOverlayComponent) textOverlay!: TextOverlayComponent;
 
   nextStep() {
-    if (this.currentStep < 3) {
+    if (this.currentStep === 2 && this.responseType === 'video') {
+      // Call the export video method from the TextOverlayComponent
+      this.textOverlay.onExportVideo((exportedUrl: string) => {
+        this.exportUrl = exportedUrl; // Store the URL to pass it to the ExportComponent
+        this.currentStep++;
+      });
+    } else if (this.currentStep < 3) {
       this.currentStep++;
     }
   }

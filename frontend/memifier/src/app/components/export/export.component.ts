@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-export',
   templateUrl: './export.component.html',
-  styleUrl: './export.component.css'
+  styleUrls: ['./export.component.css'],
 })
 export class ExportComponent {
-
+  @Input() exportedVideoUrl: string | null = null;
 }

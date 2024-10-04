@@ -20,6 +20,7 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
   textColor: string = '#ffffff'; // Default text color: white
   fontSize: number = 24; // Default font size
   isEditing: boolean = false;
+  isLoading: boolean = false;
 
   @ViewChild('textInput') textInput!: ElementRef;
   @ViewChild('videoElement') videoElement!: ElementRef<HTMLVideoElement>;
@@ -122,7 +123,8 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
   }
 
   // Export logic (same as before)
-  onExportVideo(): void {
+  onExportVideo(callback: (url: string) => void): void {
+    this.isLoading = true;
     const videoElement = this.videoElement.nativeElement;
     const videoUrl = videoElement.src;
     const exportType = 'GIF';
@@ -156,19 +158,20 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
         this.videoExportService.exportVideo(file, exportType, texts).subscribe(
           (blob) => {
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'exported-video.mp4';
-            a.click();
-            URL.revokeObjectURL(url);
+            this.isLoading = false;
+            callback(url); // Pass the URL to the callback
           },
           (error) => {
             console.error('Error exporting video:', error);
+            this.isLoading = false;
           }
         );
       })
       .catch((error) => {
         console.error('Error fetching video blob:', error);
+        this.isLoading = false;
+
       });
   }
+
 }

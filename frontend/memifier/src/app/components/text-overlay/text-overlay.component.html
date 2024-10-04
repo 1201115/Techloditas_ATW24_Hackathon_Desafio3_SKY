@@ -24,19 +24,14 @@
     </div>
   </div>
 
-  <div class="flex flex-row justify-between gap-5" *ngIf="!isEditing">
+  <div class="flex flex-row justify-center gap-5" *ngIf="!isEditing">
     <button [disabled]="isEditing" class="btn btn-primary" (click)="addText()">
       Add Text
     </button>
+  </div>
 
-    <!-- Export button -->
-    <button
-      [disabled]="isEditing"
-      class="btn btn-primary"
-      (click)="onExportVideo()"
-    >
-      Export Video
-    </button>
+  <div class="flex flex-row justify-center gap-5" *ngIf="isLoading">
+    <span class="loading loading-spinner loading-lg"></span>
   </div>
 
   <!-- Overlay for text input and controls -->
