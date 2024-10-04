@@ -163,21 +163,12 @@ def export_video():
     video_file.save(video_path)
 
     try:
-        trim_start = float(request.form.get("trimStart", 0))
-        trim_end = float(request.form.get("trimEnd", 0))
-    except (ValueError, TypeError):
-        return {"error": "Invalid trimStart or trimEnd values"}, 400
-
-    try:
         clip = VideoFileClip(video_path)
     except Exception as e:
         return {"error": f"Failed to process video: {str(e)}"}, 500
 
-    if trim_start < 0 or trim_end > clip.duration or trim_start >= trim_end:
-        return {"error": "Invalid trim times"}, 400
-
     # Trim the video
-    trimmed_clip = clip.subclip(trim_start, trim_end)
+    trimmed_clip = clip
 
     trimmed_video_filename = filename.rsplit(".", 1)[0] + "_trimmed.mp4"
     trimmed_video_path = os.path.join(app.config["UPLOAD_FOLDER"], trimmed_video_filename)

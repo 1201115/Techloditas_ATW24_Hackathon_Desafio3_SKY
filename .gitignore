@@ -9,3 +9,4 @@ frontend/memifier/.editorconfig
 frontend/memifier/package-lock.json
 /backend/uploads
 backend/.env
+/backend/__pycache__
