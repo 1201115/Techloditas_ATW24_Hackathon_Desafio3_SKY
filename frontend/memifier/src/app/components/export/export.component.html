@@ -1,4 +1,10 @@
-<div *ngIf="exportedVideoUrl" class="flex flex-col items-center">
-  <h3>Your Exported Video:</h3>
-  <video [src]="exportedVideoUrl" controls class="w-full max-w-lg"></video>
+<div *ngIf="exportedUrl" class="flex flex-col items-center">
+  <div class="flex flex-col gap-10" *ngIf="mediaType === 'video'">
+    <h3>Your Exported Video:</h3>
+    <video [src]="exportedUrl" controls class="w-full max-w-lg"></video>
+  </div>
+  <div class="flex flex-col gap-10" *ngIf="mediaType === 'image'">
+    <h3>Your Exported Image:</h3>
+    <img [src]="exportedUrl" class="w-full max-w-lg" />
+  </div>
 </div>

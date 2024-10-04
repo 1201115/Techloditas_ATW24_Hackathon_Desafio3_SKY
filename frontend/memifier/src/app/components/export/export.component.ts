@@ -6,5 +6,6 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./export.component.css'],
 })
 export class ExportComponent {
-  @Input() exportedVideoUrl: string | null = null;
+  @Input() exportedUrl: string | null = null;
+  @Input() mediaType: 'video' | 'image' | null = null;
 }

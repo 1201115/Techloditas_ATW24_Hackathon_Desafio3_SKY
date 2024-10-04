@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class VideoTrimmerService {
-  private readonly apiUrl = 'https://hackathon.morarbem.pt'; // Your Python API URL
+  private readonly apiUrl = 'http://192.168.65.195:5000'; // Your Python API URL
 
   constructor(private readonly http: HttpClient) {}
 

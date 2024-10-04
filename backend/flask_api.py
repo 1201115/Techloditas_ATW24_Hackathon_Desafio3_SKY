@@ -4,9 +4,9 @@ import os
 from moviepy.editor import VideoFileClip
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
-from PIL import Image
 import helpers as h
 from moviepy.config import change_settings
+from PIL import Image, ImageDraw, ImageFont
 
 app = Flask(__name__)
 
@@ -196,6 +196,83 @@ def export_video():
 
     # Return the final video with text overlays as a response
     return send_file(trimmed_video_path, mimetype="video/mp4", as_attachment=True, download_name=trimmed_video_filename)
+
+@app.route("/export-image", methods=["POST"])
+def export_image():
+    if "image" not in request.files:
+        return {"error": "No image file provided"}, 400
+
+    image_file = request.files["image"]
+    filename = secure_filename(image_file.filename)
+    image_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    image_file.save(image_path)
+
+    try:
+        image = Image.open(image_path)
+    except Exception as e:
+        return {"error": f"Failed to process image: {str(e)}"}, 500
+
+    # Extract text overlays from the form data
+    try:
+        text_overlays = json.loads(request.form.get("data", "{}")).get("texts", [])
+    except (json.JSONDecodeError, TypeError):
+        return {"error": "Failed to parse text overlays"}, 400
+
+    if text_overlays:
+        try:
+            modified_image = add_text_to_image(image, text_overlays)
+        except Exception as e:
+            return {"error": f"Failed to process text overlays: {str(e)}"}, 500
+    else:
+        modified_image = image
+
+    # Save the modified image to a new file
+    output_image_filename = filename.rsplit(".", 1)[0] + "_with_text.png"
+    output_image_path = os.path.join(app.config["UPLOAD_FOLDER"], output_image_filename)
+
+    try:
+        modified_image.save(output_image_path)
+    except Exception as e:
+        return {"error": f"Failed to save the image: {str(e)}"}, 500
+
+    # Return the final image with text overlays as a response
+    return send_file(output_image_path, mimetype="image/png", as_attachment=True, download_name=output_image_filename)
+
+# Function to add text overlays to an image using PIL
+def add_text_to_image(image, texts):
+    draw = ImageDraw.Draw(image)
+
+    for text_data in texts:
+        text_content = text_data.get("text", "")
+        font_size = float(text_data.get("fontSize", 55))  # Get the font size from the request
+        color = text_data.get("color", "white")
+        x = int(text_data.get("x", 0))
+        y = int(text_data.get("y", 0))
+
+        # Get the scale for width and height
+        scale = text_data.get("scale", {"width": 1, "height": 1})
+        scale_width = scale.get("width", 1)
+        scale_height = scale.get("height", 1)
+
+        # Adjust the x and y position based on the scale
+        adjusted_x = x / scale_width
+        adjusted_y = y / scale_height
+
+        # Adjust the font size based on the scale (average of width and height scale)
+        adjusted_font_size = font_size / ((scale_width + scale_height) / 2)
+
+        # Load a font
+        try:
+            font = ImageFont.truetype("arial.ttf", int(adjusted_font_size))
+        except IOError:
+            font = ImageFont.load_default()
+
+        # Add the text to the image
+        if text_content:
+            draw.text((adjusted_x, adjusted_y), text_content, fill=color, font=font)
+
+    return image
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True, threaded=True)

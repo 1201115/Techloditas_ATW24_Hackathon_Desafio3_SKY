@@ -10,7 +10,12 @@
       muted
       (ended)="restartVideo($event)"
     ></video>
-    <img *ngIf="mediaType === 'image'" [src]="mediaSrc" alt="Captured Frame" />
+    <img
+      #imageElement
+      *ngIf="mediaType === 'image'"
+      [src]="mediaSrc"
+      alt="Captured Frame"
+    />
 
     <div
       #overlayText

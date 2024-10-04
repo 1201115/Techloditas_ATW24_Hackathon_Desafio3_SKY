@@ -6,25 +6,26 @@ import {
   ElementRef,
   AfterViewInit,
   HostListener,
-} from '@angular/core';
-import { VideoExportService } from '../../services/video-export.service'; // Import the new service
+} from "@angular/core";
+import { VideoExportService } from "../../services/video-export.service"; // Import the new service
 @Component({
-  selector: 'text-overlay',
-  templateUrl: './text-overlay.component.html',
-  styleUrls: ['./text-overlay.component.css'],
+  selector: "text-overlay",
+  templateUrl: "./text-overlay.component.html",
+  styleUrls: ["./text-overlay.component.css"],
 })
 export class TextOverlayComponent implements OnInit, AfterViewInit {
-  @Input() mediaType: 'video' | 'image' | null = null;
+  @Input() mediaType: "video" | "image" | null = null;
   @Input() mediaSrc: string | null = null;
   text!: string;
-  textColor: string = '#ffffff'; // Default text color: white
+  textColor: string = "#ffffff"; // Default text color: white
   fontSize: number = 24; // Default font size
   isEditing: boolean = false;
   isLoading: boolean = false;
 
-  @ViewChild('textInput') textInput!: ElementRef;
-  @ViewChild('videoElement') videoElement!: ElementRef<HTMLVideoElement>;
-  @ViewChild('overlayText', { static: false }) overlayText!: ElementRef; // Ensure overlayText is referenced correctly
+  @ViewChild("textInput") textInput!: ElementRef;
+  @ViewChild("videoElement") videoElement!: ElementRef<HTMLVideoElement>;
+  @ViewChild("imageElement") imageElement!: ElementRef<any>;
+  @ViewChild("overlayText", { static: false }) overlayText!: ElementRef; // Ensure overlayText is referenced correctly
 
   private isDragging = false;
   private startX = 0;
@@ -69,14 +70,14 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
     event.preventDefault();
   }
 
-  @HostListener('document:mousemove', ['$event'])
+  @HostListener("document:mousemove", ["$event"])
   onMouseMove(event: MouseEvent) {
     if (this.isDragging) {
       this.moveText(event.clientX - this.startX, event.clientY - this.startY);
     }
   }
 
-  @HostListener('document:mouseup')
+  @HostListener("document:mouseup")
   onMouseUp() {
     this.isDragging = false;
   }
@@ -90,7 +91,7 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
     event.preventDefault();
   }
 
-  @HostListener('document:touchmove', ['$event'])
+  @HostListener("document:touchmove", ["$event"])
   onTouchMove(event: TouchEvent) {
     if (this.isDragging) {
       const touch = event.touches[0];
@@ -98,25 +99,42 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
     }
   }
 
-  @HostListener('document:touchend')
+  @HostListener("document:touchend")
   onTouchEnd() {
     this.isDragging = false;
   }
 
   // Utility to move text
   moveText(x: number, y: number) {
-    // Limit movement within the boundaries of the video element
-    const videoRect = this.videoElement.nativeElement.getBoundingClientRect();
+    // check mediaType
     const overlayText = this.overlayText.nativeElement;
+    let newX;
+    let newY;
+    if (this.mediaType === "video") {
+      // Limit movement within the boundaries of the video element
+      const videoRect = this.videoElement.nativeElement.getBoundingClientRect();
 
-    const newX = Math.max(
-      0,
-      Math.min(x, videoRect.width - overlayText.offsetWidth)
-    );
-    const newY = Math.max(
-      0,
-      Math.min(y, videoRect.height - overlayText.offsetHeight)
-    );
+      newX = Math.max(
+        0,
+        Math.min(x, videoRect.width - overlayText.offsetWidth)
+      );
+      newY = Math.max(
+        0,
+        Math.min(y, videoRect.height - overlayText.offsetHeight)
+      );
+    } else if (this.mediaType === "image") {
+      // Limit movement within the boundaries of the image element
+      const imageRect = this.imageElement.nativeElement.getBoundingClientRect();
+
+      newX = Math.max(
+        0,
+        Math.min(x, imageRect.width - overlayText.offsetWidth)
+      );
+      newY = Math.max(
+        0,
+        Math.min(y, imageRect.height - overlayText.offsetHeight)
+      );
+    }
 
     overlayText.style.left = `${newX}px`;
     overlayText.style.top = `${newY}px`;
@@ -127,7 +145,7 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
     this.isLoading = true;
     const videoElement = this.videoElement.nativeElement;
     const videoUrl = videoElement.src;
-    const exportType = 'GIF';
+    const exportType = "GIF";
 
     const originalWidth = videoElement.videoWidth;
     const originalHeight = videoElement.videoHeight;
@@ -153,7 +171,7 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
     fetch(videoUrl)
       .then((response) => response.blob())
       .then((blob) => {
-        const file = new File([blob], 'video.mp4', { type: 'video/mp4' });
+        const file = new File([blob], "video.mp4", { type: "video/mp4" });
 
         this.videoExportService.exportVideo(file, exportType, texts).subscribe(
           (blob) => {
@@ -162,16 +180,62 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
             callback(url); // Pass the URL to the callback
           },
           (error) => {
-            console.error('Error exporting video:', error);
+            console.error("Error exporting video:", error);
             this.isLoading = false;
           }
         );
       })
       .catch((error) => {
-        console.error('Error fetching video blob:', error);
+        console.error("Error fetching video blob:", error);
         this.isLoading = false;
-
       });
   }
 
+  onExportImage(callback: (url: string) => void): void {
+    this.isLoading = true;
+    
+    const imageElement = this.imageElement.nativeElement;
+    const imageUrl = imageElement.src;
+  
+
+    const scale = {
+      width: imageElement.clientWidth / imageElement.naturalWidth,
+      height: imageElement.clientHeight / imageElement.naturalHeight,
+    };
+
+    const texts = [
+      {
+        text: this.text,
+        color: this.textColor,
+        x: this.overlayText.nativeElement.offsetLeft,
+        y: this.overlayText.nativeElement.offsetTop,
+        scale,
+        fontSize: this.fontSize,
+      },
+    ];
+  
+    fetch(imageUrl)
+      .then((response) => response.blob())
+      .then((blob) => {
+        const file = new File([blob], "image.png", { type: "image/png" });
+  
+        // Call the backend to process the image with text overlay
+        this.videoExportService.exportImage(file, texts).subscribe(
+          (blob) => {
+            const url = URL.createObjectURL(blob); // Create the URL for the new image
+            this.isLoading = false;
+            callback(url); // Pass the URL to the callback
+          },
+          (error) => {
+            console.error("Error exporting image:", error);
+            this.isLoading = false;
+          }
+        );
+      })
+      .catch((error) => {
+        console.error("Error fetching image blob:", error);
+        this.isLoading = false;
+      });
+  }
+  
 }
