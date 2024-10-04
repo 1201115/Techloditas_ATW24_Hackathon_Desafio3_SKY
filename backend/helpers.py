@@ -1,5 +1,6 @@
 from moviepy.editor import TextClip, CompositeVideoClip
 
+
 def add_text_overlays(clip, texts):
     text_clips = []
     for text_data in texts:
@@ -36,3 +37,27 @@ def add_text_overlays(clip, texts):
     final_clip = CompositeVideoClip([clip] + text_clips)
 
     return final_clip
+
+
+def format_video_for_platform(clip, target_aspect_ratio=(16, 9)):
+    target_width, target_height = target_aspect_ratio
+
+    current_aspect_ratio = clip.w / clip.h
+
+    target_aspect_ratio = target_width / target_height
+
+    if current_aspect_ratio > target_aspect_ratio:
+        new_width = int(clip.h * target_aspect_ratio)
+        resized_clip = clip.crop(width=new_width, height=clip.h, x_center=clip.w / 2)
+    elif current_aspect_ratio < target_aspect_ratio:
+        new_height = int(clip.w / target_aspect_ratio)
+        resized_clip = clip.crop(width=clip.w, height=new_height, y_center=clip.h / 2)
+    else:
+        resized_clip = clip
+
+    return resized_clip
+
+
+# Example usage:
+input_video = "input_video.mp4"
+output_video = "formatted_for_stories.mp4"

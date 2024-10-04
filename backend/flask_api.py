@@ -10,10 +10,12 @@ from moviepy.config import change_settings
 
 app = Flask(__name__)
 
+
 # Load ImageMagick binary path from a text file
 def load_imagemagick_path():
     with open("imagemagick_path.txt", "r") as file:
         return file.read().strip()
+
 
 # Use the path from imagemagick_path.txt
 imagemagick_path = load_imagemagick_path()
@@ -32,9 +34,11 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+
 @app.route("/")
 def index():
     return "Hello, Equipa Vencedora!"
+
 
 @app.route("/trim-to-video", methods=["POST"])
 def trim_to_video():
@@ -74,6 +78,7 @@ def trim_to_video():
 
     # Return the trimmed video as a response
     return send_file(trimmed_video_path, mimetype="video/mp4", as_attachment=True, download_name=trimmed_video_filename)
+
 
 @app.route("/trim-to-gif", methods=["POST"])
 def trim_to_gif():
@@ -117,6 +122,7 @@ def trim_to_gif():
     # Return the GIF as a response
     return send_file(gif_path, mimetype="image/gif", as_attachment=True, download_name=gif_filename)
 
+
 @app.route("/frame-at-time", methods=["POST"])
 def frame_at_time():
     if "video" not in request.files:
@@ -155,6 +161,7 @@ def frame_at_time():
 
     return send_file(frame_path, mimetype="image/png", as_attachment=True, download_name=frame_filename)
 
+
 @app.route("/export-video", methods=["POST"])
 def export_video():
     if "video" not in request.files:
@@ -188,6 +195,14 @@ def export_video():
     trimmed_video_filename = filename.rsplit(".", 1)[0] + "_with_text.mp4"
     trimmed_video_path = os.path.join(app.config["UPLOAD_FOLDER"], trimmed_video_filename)
 
+    format = request.form.get("format", "{}")
+
+    if format:
+        if format in ["Story", "Reel", "Short"]:
+            final_clip = h.format_video_for_platform(final_clip, target_aspect_ratio=(9, 16))
+        elif format in ["Gif"]:
+            pass
+
     try:
         # Write the final video to a file
         final_clip.write_videofile(trimmed_video_path, codec="libx264")
@@ -196,6 +211,7 @@ def export_video():
 
     # Return the final video with text overlays as a response
     return send_file(trimmed_video_path, mimetype="video/mp4", as_attachment=True, download_name=trimmed_video_filename)
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True, threaded=True)
