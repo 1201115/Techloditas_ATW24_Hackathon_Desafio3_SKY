@@ -254,7 +254,7 @@ def export_image():
     output_image_path = os.path.join(app.config["UPLOAD_FOLDER"], output_image_filename)
 
     modified_image = h.adjust_aspect_ratio(modified_image, target_aspect_ratio=(9, 16))
-    
+
     try:
         modified_image.save(output_image_path)
     except Exception as e:
@@ -263,6 +263,9 @@ def export_image():
     # Return the final image with text overlays as a response
     return send_file(output_image_path, mimetype="image/png", as_attachment=True, download_name=output_image_filename)
 
+@app.route('/uploads/<filename>')
+def serve_gif(filename):
+    return send_file(os.path.join(app.config['UPLOAD_FOLDER'], filename), mimetype='image/gif')
 
 # Function to add text overlays to an image using PIL
 def add_text_to_image(image, texts):
