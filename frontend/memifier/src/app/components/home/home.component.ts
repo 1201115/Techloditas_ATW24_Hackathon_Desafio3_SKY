@@ -11,7 +11,8 @@ export class HomeComponent {
   responseData: string | null = null;
   responseType: "video" | "image" | null = null;
   exportUrl: string | null = null; // For storing the exported video URL
-
+  selectedLayout: string = "Gif"; // Define selectedLayout variable
+  
   @ViewChild(TextOverlayComponent) textOverlay!: TextOverlayComponent;
 
   nextStep() {
@@ -50,5 +51,10 @@ export class HomeComponent {
     this.responseData = frameUrl;
     this.responseType = "image";
     this.nextStep();
+  }
+
+  onLayoutChanged(layout: string) {
+    this.selectedLayout = layout;
+    console.log("Selected Layout:", layout);
   }
 }

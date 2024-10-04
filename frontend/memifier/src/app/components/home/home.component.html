@@ -33,7 +33,10 @@
       *ngIf="responseData"
       [mediaType]="responseType"
       [mediaSrc]="responseData"
-    ></text-overlay>
+      (layoutChanged)="onLayoutChanged($event)"
+    >
+      ></text-overlay
+    >
 
     <div class="w-100 flex justify-between">
       <button class="btn btn-secondary" (click)="previousStep()">
@@ -49,7 +52,12 @@
     style="height: 80vh"
   >
     <!-- Export Component -->
-    <app-export style="height: 100%;" [exportedUrl]="exportUrl" [mediaType]="responseType"></app-export>
+    <app-export
+      style="height: 100%"
+      [exportedUrl]="exportUrl"
+      [mediaType]="responseType"
+    ></app-export>
+    <span>{{selectedLayout}}</span>
     <div class="w-100 flex justify-between">
       <button class="btn btn-secondary" (click)="previousStep()">
         Back: Edit

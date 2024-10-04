@@ -6,6 +6,8 @@ import {
   ElementRef,
   AfterViewInit,
   HostListener,
+  EventEmitter,
+  Output,
 } from "@angular/core";
 import { VideoExportService } from "../../services/video-export.service"; // Import the new service
 @Component({
@@ -21,8 +23,8 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
   fontSize: number = 24; // Default font size
   isEditing: boolean = false;
   isLoading: boolean = false;
-  selectedLayout: string | null = null; // Define selectedLayout variable
-  layouts: string[] = ['Reel', 'Short', 'Gif', 'Story'];
+  selectedLayout: string = "Gif"; // Define selectedLayout variable
+  layouts: string[] = ["Reel", "Short", "Gif", "Story"];
 
   @ViewChild("textInput") textInput!: ElementRef;
   @ViewChild("videoElement") videoElement!: ElementRef<HTMLVideoElement>;
@@ -33,6 +35,8 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
   private startX = 0;
   private startY = 0;
 
+  @Output() layoutChanged = new EventEmitter<string>(); // Add an EventEmitter for the selected layout
+
   constructor(private readonly videoExportService: VideoExportService) {} // Inject the new service
 
   ngOnInit(): void {}
@@ -41,6 +45,12 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
     if (this.isEditing) {
       this.textInput.nativeElement.focus();
     }
+  }
+
+  // Use this method to emit the selected layout whenever it changes
+  onLayoutChange() {
+    console.log("Selected Layout:", this.selectedLayout);
+    this.layoutChanged.emit(this.selectedLayout); // Emit the selected layout when it changes
   }
 
   addText() {
@@ -172,7 +182,7 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
 
     // Check if selectedLayout is defined
     if (!this.selectedLayout) {
-      console.error('Error: Layout not selected.');
+      console.error("Error: Layout not selected.");
       this.isLoading = false;
       return;
     }
@@ -183,17 +193,19 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
       .then((blob) => {
         const file = new File([blob], "video.mp4", { type: "video/mp4" });
 
-        this.videoExportService.exportVideo(file, exportType, texts, layout).subscribe(
-          (blob) => {
-            const url = URL.createObjectURL(blob);
-            this.isLoading = false;
-            callback(url); // Pass the URL to the callback
-          },
-          (error) => {
-            console.error("Error exporting video:", error);
-            this.isLoading = false;
-          }
-        );
+        this.videoExportService
+          .exportVideo(file, exportType, texts, layout)
+          .subscribe(
+            (blob) => {
+              const url = URL.createObjectURL(blob);
+              this.isLoading = false;
+              callback(url); // Pass the URL to the callback
+            },
+            (error) => {
+              console.error("Error exporting video:", error);
+              this.isLoading = false;
+            }
+          );
       })
       .catch((error) => {
         console.error("Error fetching video blob:", error);
@@ -203,10 +215,9 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
 
   onExportImage(callback: (url: string) => void): void {
     this.isLoading = true;
-    
+
     const imageElement = this.imageElement.nativeElement;
     const imageUrl = imageElement.src;
-  
 
     const scale = {
       width: imageElement.clientWidth / imageElement.naturalWidth,
@@ -223,12 +234,12 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
         fontSize: this.fontSize,
       },
     ];
-  
+
     fetch(imageUrl)
       .then((response) => response.blob())
       .then((blob) => {
         const file = new File([blob], "image.png", { type: "image/png" });
-  
+
         // Call the backend to process the image with text overlay
         this.videoExportService.exportImage(file, texts).subscribe(
           (blob) => {
@@ -247,5 +258,4 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
         this.isLoading = false;
       });
   }
-  
 }
