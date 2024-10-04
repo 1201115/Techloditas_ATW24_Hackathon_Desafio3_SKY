@@ -16,7 +16,7 @@ import { VideoExportService } from "../../services/video-export.service"; // Imp
 export class TextOverlayComponent implements OnInit, AfterViewInit {
   @Input() mediaType: "video" | "image" | null = null;
   @Input() mediaSrc: string | null = null;
-  text!: string;
+  texts: { text: string; color: string; fontSize: number; x: number; y: number }[] = [];
   textColor: string = "#ffffff"; // Default text color: white
   fontSize: number = 24; // Default font size
   isEditing: boolean = false;
@@ -32,6 +32,7 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
   private isDragging = false;
   private startX = 0;
   private startY = 0;
+  private dragIndex: number | null = null;
 
   constructor(private readonly videoExportService: VideoExportService) {} // Inject the new service
 
@@ -43,11 +44,15 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
     }
   }
 
-  addText() {
+  addText(): void {
+    this.texts.push({
+      text: '',
+      color: this.textColor,
+      fontSize: this.fontSize,
+      x: 0,
+      y: 0,
+    });
     this.isEditing = true;
-    setTimeout(() => {
-      this.textInput.nativeElement.focus();
-    }, 0);
   }
 
   saveText() {
@@ -65,43 +70,72 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
   }
 
   // Mouse events
-  startDrag(event: MouseEvent) {
+  startDrag(event: MouseEvent, index: number): void {
     this.isDragging = true;
-    this.startX = event.clientX - this.overlayText.nativeElement.offsetLeft;
-    this.startY = event.clientY - this.overlayText.nativeElement.offsetTop;
+    this.dragIndex = index;
+    this.startX = event.clientX - this.texts[index].x;
+    this.startY = event.clientY - this.texts[index].y;
     event.preventDefault();
+  }
+
+  onDrag(event: MouseEvent): void {
+    if (this.isDragging && this.dragIndex !== null) {
+      this.texts[this.dragIndex].x = event.clientX - this.startX;
+      this.texts[this.dragIndex].y = event.clientY - this.startY;
+    }
+  }
+
+  stopDrag(): void {
+    this.isDragging = false;
+    this.dragIndex = null;
   }
 
   @HostListener("document:mousemove", ["$event"])
   onMouseMove(event: MouseEvent) {
-    if (this.isDragging) {
-      this.moveText(event.clientX - this.startX, event.clientY - this.startY);
+    if (this.isDragging && this.dragIndex !== null) {
+      this.texts[this.dragIndex].x = event.clientX - this.startX;
+      this.texts[this.dragIndex].y = event.clientY - this.startY;
     }
   }
 
   @HostListener("document:mouseup")
   onMouseUp() {
     this.isDragging = false;
+    this.dragIndex = null;
   }
 
   // Touch events
-  startTouch(event: TouchEvent) {
+  startTouch(event: TouchEvent, index: number) {
     this.isDragging = true;
+    this.dragIndex = index;
     const touch = event.touches[0];
-    this.startX = touch.clientX - this.overlayText.nativeElement.offsetLeft;
-    this.startY = touch.clientY - this.overlayText.nativeElement.offsetTop;
+    this.startX = touch.clientX - this.texts[index].x;
+    this.startY = touch.clientY - this.texts[index].y;
     event.preventDefault();
   }
 
-  @HostListener("document:touchmove", ["$event"])
   onTouchMove(event: TouchEvent) {
-    if (this.isDragging) {
+    if (this.isDragging && this.dragIndex !== null) {
       const touch = event.touches[0];
-      this.moveText(touch.clientX - this.startX, touch.clientY - this.startY);
+      this.texts[this.dragIndex].x = touch.clientX - this.startX;
+      this.texts[this.dragIndex].y = touch.clientY - this.startY;
     }
   }
 
+  stopTouch(): void {
+    this.isDragging = false;
+    this.dragIndex = null;
+  }
+
+  @HostListener("document:touchmove", ["$event"])
+  onDocumentTouchMove(event: TouchEvent) {
+    this.onTouchMove(event);
+  }
+
   @HostListener("document:touchend")
+  onDocumentTouchEnd() {
+    this.stopTouch();
+  }
   onTouchEnd() {
     this.isDragging = false;
   }
@@ -159,16 +193,16 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
       height: currentHeight / originalHeight,
     };
 
-    const texts = [
-      {
-        text: this.text,
-        color: this.textColor,
-        x: this.overlayText.nativeElement.offsetLeft,
-        y: this.overlayText.nativeElement.offsetTop,
-        scale,
-        fontSize: this.fontSize,
-      },
-    ];
+    // const texts = [
+    //   {
+    //     text: this.text,
+    //     color: this.textColor,
+    //     x: this.overlayText.nativeElement.offsetLeft,
+    //     y: this.overlayText.nativeElement.offsetTop,
+    //     scale,
+    //     fontSize: this.fontSize,
+    //   },
+    // ];
 
     // Check if selectedLayout is defined
     if (!this.selectedLayout) {
@@ -183,7 +217,7 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
       .then((blob) => {
         const file = new File([blob], "video.mp4", { type: "video/mp4" });
 
-        this.videoExportService.exportVideo(file, exportType, texts, layout).subscribe(
+        this.videoExportService.exportVideo(file, exportType, this.texts, layout).subscribe(
           (blob) => {
             const url = URL.createObjectURL(blob);
             this.isLoading = false;
@@ -213,16 +247,16 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
       height: imageElement.clientHeight / imageElement.naturalHeight,
     };
 
-    const texts = [
-      {
-        text: this.text,
-        color: this.textColor,
-        x: this.overlayText.nativeElement.offsetLeft,
-        y: this.overlayText.nativeElement.offsetTop,
-        scale,
-        fontSize: this.fontSize,
-      },
-    ];
+    // const texts = [
+    //   {
+    //     text: this.text,
+    //     color: this.textColor,
+    //     x: this.overlayText.nativeElement.offsetLeft,
+    //     y: this.overlayText.nativeElement.offsetTop,
+    //     scale,
+    //     fontSize: this.fontSize,
+    //   },
+    // ];
   
     fetch(imageUrl)
       .then((response) => response.blob())
@@ -230,7 +264,7 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
         const file = new File([blob], "image.png", { type: "image/png" });
   
         // Call the backend to process the image with text overlay
-        this.videoExportService.exportImage(file, texts).subscribe(
+        this.videoExportService.exportImage(file, this.texts).subscribe(
           (blob) => {
             const url = URL.createObjectURL(blob); // Create the URL for the new image
             this.isLoading = false;
