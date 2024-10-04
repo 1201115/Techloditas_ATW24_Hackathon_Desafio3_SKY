@@ -1,6 +1,7 @@
 from moviepy.editor import TextClip, CompositeVideoClip
 from PIL import Image, ImageDraw, ImageFont
 
+
 def add_text_overlays(clip, texts):
     text_clips = []
     for text_data in texts:
@@ -85,3 +86,18 @@ def add_text_to_image(image, texts):
             draw.text((adjusted_x, adjusted_y), text_content, fill=color, font=font)
 
     return image
+
+
+def format_video_for_platform(clip, target_aspect_ratio=(16, 9)):
+    target_width, target_height = target_aspect_ratio
+    current_aspect_ratio = clip.w / clip.h
+    target_aspect_ratio = target_width / target_height
+    if current_aspect_ratio > target_aspect_ratio:
+        new_width = int(clip.h * target_aspect_ratio)
+        resized_clip = clip.crop(width=new_width, height=clip.h, x_center=clip.w / 2)
+    elif current_aspect_ratio < target_aspect_ratio:
+        new_height = int(clip.w / target_aspect_ratio)
+        resized_clip = clip.crop(width=clip.w, height=new_height, y_center=clip.h / 2)
+    else:
+        resized_clip = clip
+    return resized_clip

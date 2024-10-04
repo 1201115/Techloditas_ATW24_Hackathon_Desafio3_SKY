@@ -11,3 +11,5 @@ frontend/memifier/package-lock.json
 backend/.env
 /backend/__pycache__
 /backend/env
+/uploads
+/uploads

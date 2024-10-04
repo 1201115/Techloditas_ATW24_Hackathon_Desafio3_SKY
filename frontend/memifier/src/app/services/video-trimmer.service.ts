@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class VideoTrimmerService {
-  private readonly apiUrl = 'http://192.168.65.195:5000'; // Your Python API URL
+  private readonly apiUrl = 'http://127.0.0.1:5000'; // Define the API URL
 
   constructor(private readonly http: HttpClient) {}
 
