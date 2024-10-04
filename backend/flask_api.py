@@ -10,7 +10,15 @@ from moviepy.config import change_settings
 
 app = Flask(__name__)
 
-change_settings({"IMAGEMAGICK_BINARY": "C:\\Program Files\\ImageMagick-7.1.1-Q16-HDRI\\magick.exe"})
+# Load ImageMagick binary path from a text file
+def load_imagemagick_path():
+    with open("imagemagick_path.txt", "r") as file:
+        return file.read().strip()
+
+# Use the path from imagemagick_path.txt
+imagemagick_path = load_imagemagick_path()
+change_settings({"IMAGEMAGICK_BINARY": imagemagick_path})
+
 # Set the maximum file size to 500MB
 app.config["MAX_CONTENT_LENGTH"] = 500 * 1024 * 1024  # 500 MB limit
 

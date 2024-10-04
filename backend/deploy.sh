@@ -6,11 +6,16 @@ export $(cat .env | xargs)
 # Define your server details
 SERVER="root@157.173.122.221"
 LOCAL_APP_PATH="flask_api.py"  # Local path to your Flask app
+LOCAL_HELPERS_PATH="helpers.py"  # Local path to your helpers file
 REMOTE_APP_PATH="~/flask_api"  # Remote path to where you want to deploy
 
 # Transfer the Flask app file first
 echo "Transferring Flask app..."
 scp $LOCAL_APP_PATH $SERVER:$REMOTE_APP_PATH
+
+# Transfer the helpers.py file
+echo "Transferring helpers.py..."
+scp $LOCAL_HELPERS_PATH $SERVER:$REMOTE_APP_PATH
 
 # Connect to the server and run deployment commands
 ssh $SERVER << EOF
