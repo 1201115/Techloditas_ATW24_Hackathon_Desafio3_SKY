@@ -6,18 +6,19 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class VideoExportService {
-  private readonly apiUrl = 'https://hackathon.morarbem.pt'; // Your Python API URL
+  private readonly apiUrl = 'http://127.0.0.1:5000'; // Your Python API URL
 
   constructor(private readonly http: HttpClient) {}
 
   exportVideo(
     videoFile: File,
     exportType: string,
-    texts: { text: string; color: string; x: number; y: number }[]
+    texts: { text: string; color: string; x: number; y: number }[],
+    layout: string
   ): Observable<Blob> {
     const formData = new FormData();
     formData.append('video', videoFile);
-    formData.append('data', JSON.stringify({ exportType, texts }));
+    formData.append('data', JSON.stringify({ exportType, texts, layout }));
 
     return this.http.post(`${this.apiUrl}/export-video`, formData, { responseType: 'blob' });
   }

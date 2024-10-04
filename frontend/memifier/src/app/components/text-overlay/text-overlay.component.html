@@ -28,6 +28,10 @@
     <button [disabled]="isEditing" class="btn btn-primary" (click)="addText()">
       Add Text
     </button>
+    <select class="select select-bordered" [(ngModel)]="selectedLayout">
+      <option disabled selected>Export Type</option>
+      <option *ngFor="let layout of layouts" [value]="layout">{{ layout }}</option>
+    </select>
   </div>
 
   <div class="flex flex-row justify-center gap-5" *ngIf="isLoading">

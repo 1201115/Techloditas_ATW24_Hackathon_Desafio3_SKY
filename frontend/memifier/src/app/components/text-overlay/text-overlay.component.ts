@@ -21,6 +21,8 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
   fontSize: number = 24; // Default font size
   isEditing: boolean = false;
   isLoading: boolean = false;
+  selectedLayout: string | null = null; // Define selectedLayout variable
+  layouts: string[] = ['Reel', 'Short', 'Gif', 'Story'];
 
   @ViewChild('textInput') textInput!: ElementRef;
   @ViewChild('videoElement') videoElement!: ElementRef<HTMLVideoElement>;
@@ -150,12 +152,20 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
       },
     ];
 
+    // Check if selectedLayout is defined
+    if (!this.selectedLayout) {
+      console.error('Error: Layout not selected.');
+      this.isLoading = false;
+      return;
+    }
+
+    const layout = this.selectedLayout;
     fetch(videoUrl)
       .then((response) => response.blob())
       .then((blob) => {
         const file = new File([blob], 'video.mp4', { type: 'video/mp4' });
 
-        this.videoExportService.exportVideo(file, exportType, texts).subscribe(
+        this.videoExportService.exportVideo(file, exportType, texts, layout).subscribe(
           (blob) => {
             const url = URL.createObjectURL(blob);
             this.isLoading = false;
