@@ -15,6 +15,7 @@
     <!-- Video player (initially hidden until a video is loaded) -->
     <div class="relative w-full max-w-4xl">
       <video
+        style="max-height: 20rem"
         #videoPlayer
         id="video"
         class="w-full border rounded-md shadow-lg"
@@ -111,7 +112,12 @@
   <!-- Display the trimmed video -->
   <div *ngIf="videoUrl && !isLoading" class="mt-4">
     <h3>Your Trimmed Video:</h3>
-    <video [src]="videoUrl" controls class="w-full max-w-lg"></video>
+    <video
+      style="max-height: 20rem"
+      [src]="videoUrl"
+      controls
+      class="w-full max-w-lg"
+    ></video>
   </div>
 
   <!-- Display the requested frame -->

@@ -16,7 +16,9 @@ import { VideoExportService } from '../../services/video-export.service'; // Imp
 export class TextOverlayComponent implements OnInit, AfterViewInit {
   @Input() mediaType: 'video' | 'image' | null = null;
   @Input() mediaSrc: string | null = null;
-  text: string = '';
+  text!: string;
+  textColor: string = '#ffffff'; // Default text color: white
+  fontSize: number = 24; // Default font size
   isEditing: boolean = false;
 
   @ViewChild('textInput') textInput!: ElementRef;
@@ -119,12 +121,12 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
     overlayText.style.top = `${newY}px`;
   }
 
+  // Export logic (same as before)
   onExportVideo(): void {
     const videoElement = this.videoElement.nativeElement;
     const videoUrl = videoElement.src;
-    const exportType = 'GIF'; // Default export type
+    const exportType = 'GIF';
 
-    // Calculate the scale based on the video size
     const originalWidth = videoElement.videoWidth;
     const originalHeight = videoElement.videoHeight;
     const currentWidth = videoElement.clientWidth;
@@ -135,19 +137,14 @@ export class TextOverlayComponent implements OnInit, AfterViewInit {
       height: currentHeight / originalHeight,
     };
 
-    // Get the font size from the overlay element (ensure it's set properly in the CSS)
-    const fontSize = window.getComputedStyle(
-      this.overlayText.nativeElement
-    ).fontSize;
-
     const texts = [
       {
         text: this.text,
-        color: 'white',
+        color: this.textColor,
         x: this.overlayText.nativeElement.offsetLeft,
         y: this.overlayText.nativeElement.offsetTop,
         scale,
-        fontSize: parseFloat(fontSize), // Send the font-size as a number
+        fontSize: this.fontSize,
       },
     ];
 

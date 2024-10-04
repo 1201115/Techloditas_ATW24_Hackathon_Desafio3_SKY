@@ -1,6 +1,7 @@
 <div class="flex flex-col gap-10">
   <div class="media-container">
     <video
+      style="max-height: 20rem"
       #videoElement
       *ngIf="mediaType === 'video'"
       [src]="mediaSrc"
@@ -14,6 +15,7 @@
     <div
       #overlayText
       class="overlay-text"
+      [ngStyle]="{ color: textColor, fontSize: fontSize + 'px' }"
       *ngIf="text"
       (mousedown)="startDrag($event)"
       (touchstart)="startTouch($event)"
@@ -22,14 +24,14 @@
     </div>
   </div>
 
-  <div class="flex flex-row justify-between">
+  <div class="flex flex-row justify-between gap-5" *ngIf="!isEditing">
     <button [disabled]="isEditing" class="btn btn-primary" (click)="addText()">
       Add Text
     </button>
 
     <!-- Export button -->
     <button
-      [disabled]="isEditing || !text"
+      [disabled]="isEditing"
       class="btn btn-primary"
       (click)="onExportVideo()"
     >
@@ -37,7 +39,7 @@
     </button>
   </div>
 
-  <!-- Overlay for text input -->
+  <!-- Overlay for text input and controls -->
   <div class="flex flex-col gap-5" *ngIf="isEditing">
     <input
       class="input input-bordered w-full max-w-xs"
@@ -45,6 +47,30 @@
       [(ngModel)]="text"
       placeholder="Enter text"
     />
+
+    <div class="flex flex-row gap-5 items-center">
+      <label class="label">Font Size</label>
+      <input
+        type="range"
+        min="10"
+        max="50"
+        [(ngModel)]="fontSize"
+        class="range range-primary"
+      />
+      <span>{{ fontSize }}px</span>
+    </div>
+
+    <div class="flex flex-row gap-5 items-center">
+      <label class="label">Text Color</label>
+      <input
+        type="color"
+        [(ngModel)]="textColor"
+        class="input input-bordered"
+        style="width: 100%"
+      />
+      <span>{{ textColor }}</span>
+    </div>
+
     <button class="btn btn-primary" (click)="saveText()">Save</button>
   </div>
 </div>
